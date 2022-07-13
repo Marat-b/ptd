@@ -4,7 +4,7 @@ from detectron2.data import detection_utils as utils
 import detectron2.data.transforms as T
 
 
-class myMapper:
+class MyMapper:
     def __init__(self, cfg, is_train: bool = True):
         if is_train:
             aug_list = [

@@ -28,7 +28,7 @@ class PotatoTrainer:
         # self.dataset_test = None
         # self.dataset_train = None
         self.eval_period = None
-        self.max_iter = 1
+        # self.max_iter = 1
         # self.num_classes = num_classes
         self.output_folder = None
         self.train_coco_file_path = None
@@ -48,10 +48,10 @@ class PotatoTrainer:
             "COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml") #self.weights
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = 10 #self.num_classes
         self.cfg.SOLVER.BASE_LR = 0.0001 #self.base_lr
-        self.cfg.SOLVER.MAX_ITER = self.max_iter
+        self.cfg.SOLVER.MAX_ITER = 20 #elf.max_iter
         # self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
         # self.cfg.SOLVER.WARMUP_ITERS = 200
-        self.cfg.TEST.EVAL_PERIOD = 1 #self.eval_period
+        self.cfg.TEST.EVAL_PERIOD = 10 #self.eval_period
         os.makedirs(self.cfg.OUTPUT_DIR, exist_ok=True)
 
     def _load_datasets(self,
@@ -114,7 +114,7 @@ class PotatoTrainer:
                 storage.put_scalars(total_loss=losses_reduced, **loss_dict_reduced)
                 storage.put_scalar("lr", optimizer.param_groups[0]["lr"], smoothing_hint=False)
                 # print(f'losses_reduced={losses_reduced}, lr={optimizer.param_groups[0]["lr"]}')
-                if iteration % 1 == 0:
+                if iteration % 10 == 0:
                     logger.info(
                         f'iter={iteration}, losses_reduced={losses_reduced}, lr={optimizer.param_groups[0]["lr"]}'
                     )

@@ -1,3 +1,4 @@
+import datetime
 import os
 import shutil
 import sys
@@ -70,6 +71,20 @@ class PotatoTrainer:
         register_coco_instances('validate_instances', {}, validate_coco_file_path, validate_images_path)
 
     def train_model(self, resume=False, output_folder='./'):
+        def get_ymd():
+            now = datetime.datetime.now()
+            year = now.year
+            month = str(now.month)
+            day = str(now.day)
+            hour = str(now.hour)
+            if len(month) != 2:
+                month = '0' + month
+            if len(day) != 2:
+                day = '0' + day
+            if len(hour) != 2:
+                hour = '0' + hour
+            return '{}{}{}{}'.format(year, month, day, hour)
+
         count_iteration = 200
         logger = logging.getLogger("detectron2")
         handler = logging.StreamHandler(stream=sys.stdout)
@@ -134,9 +149,9 @@ class PotatoTrainer:
                     checkpointer.save("potato_model_current")
                     shutil.copy(
                         './output/potato_model_current.pth',
-                        os.path.join(output_folder, 'potato_model_current.pth')
+                        os.path.join(output_folder, 'potato_model_current{}.pth'.format(get_ymd()))
                     )
-                    output_folder = os.path.join(self.cfg.OUTPUT_DIR, "inference")
+                    # out_folder = os.path.join(self.cfg.OUTPUT_DIR, "inference")
                     # for dataset_name in dataset_names:
                     #     valid_loader = build_detection_test_loader(
                     #         self.cfg, dataset_name, mapper=MyMapper(self.cfg, is_train=False)
@@ -157,11 +172,11 @@ class PotatoTrainer:
                         logger.info(f'Save Best Score: {best_mAP:.4f}')
                         shutil.copy(
                             './output/best_mAP.pth',
-                            os.path.join(output_folder, 'potato_model_best.pth')
+                            os.path.join(output_folder, 'potato_model_best{}.pth'.format(get_ymd()))
                         )
                         shutil.copy(
                             './output/metrics.json',
-                            os.path.join(output_folder, 'metrics.json')
+                            os.path.join(output_folder, 'metrics{}.json'.format(get_ymd()))
                         )
                     scheduler.step(mAP)
                     # wandb.log({'eval-mAP': mAP,

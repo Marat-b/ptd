@@ -30,9 +30,9 @@ class PotatoTrainer:
         self.cfg_path = './config_potato.yml'
         # self.dataset_test = None
         # self.dataset_train = None
-        self.eval_period = None
+        self.eval_period = 2000
         # self.max_iter = 1
-        # self.num_classes = num_classes
+        self.num_classes = 10
         self.output_folder = None
         self.train_coco_file_path = None
         self.train_images_path = None
@@ -52,15 +52,15 @@ class PotatoTrainer:
         self.cfg.DATALOADER.NUM_WORKERS = 2
         self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 256
         self.cfg.SOLVER.IMS_PER_BATCH = 2
-        self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = 10 #self.num_classes
+        self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = self.num_classes
         self.cfg.SOLVER.GAMMA = 0.5
         self.cfg.SOLVER.WEIGHT_DECAY = 0
         self.cfg.SOLVER.MOMENTUM = 0
-        self.cfg.SOLVER.BASE_LR = 0.0001 #self.base_lr
+        self.cfg.SOLVER.BASE_LR = 0.00001 #self.base_lr
         self.cfg.SOLVER.MAX_ITER = 12000 #elf.max_iter
         self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
         self.cfg.SOLVER.WARMUP_ITERS = 1000
-        self.cfg.TEST.EVAL_PERIOD = 4000 #self.eval_period
+        self.cfg.TEST.EVAL_PERIOD = self.eval_period
         self.cfg.SOLVER.WARMUP_METHOD = "linear"
         os.makedirs(self.cfg.OUTPUT_DIR, exist_ok=True)
 
@@ -75,7 +75,7 @@ class PotatoTrainer:
         self.cfg.DATALOADER.NUM_WORKERS = 2
         self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 256
         self.cfg.SOLVER.IMS_PER_BATCH = 2
-        self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = 10 #self.num_classes
+        self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = self.num_classes
         self.cfg.SOLVER.GAMMA = 0.5
         self.cfg.SOLVER.WEIGHT_DECAY = 0
         self.cfg.SOLVER.MOMENTUM = 0
@@ -83,7 +83,7 @@ class PotatoTrainer:
         self.cfg.SOLVER.MAX_ITER = max_iter
         self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
         self.cfg.SOLVER.WARMUP_ITERS = 1000
-        self.cfg.TEST.EVAL_PERIOD = 4000 #self.eval_period
+        self.cfg.TEST.EVAL_PERIOD = self.eval_period
         self.cfg.SOLVER.WARMUP_METHOD = "linear"
         os.makedirs(self.cfg.OUTPUT_DIR, exist_ok=True)
 

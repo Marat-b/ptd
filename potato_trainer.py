@@ -53,8 +53,30 @@ class PotatoTrainer:
         self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 256
         self.cfg.SOLVER.IMS_PER_BATCH = 2
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = 10 #self.num_classes
+        self.cfg.SOLVER.GAMMA = 0.5
         self.cfg.SOLVER.BASE_LR = 0.0001 #self.base_lr
         self.cfg.SOLVER.MAX_ITER = 12000 #elf.max_iter
+        self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
+        self.cfg.SOLVER.WARMUP_ITERS = 1000
+        self.cfg.TEST.EVAL_PERIOD = 4000 #self.eval_period
+        self.cfg.SOLVER.WARMUP_METHOD = "linear"
+        os.makedirs(self.cfg.OUTPUT_DIR, exist_ok=True)
+
+    def _load_cfg_resuming(self, max_iter: int, lr: float):
+        self.cfg = get_cfg()  # obtain detectron2's default config
+        # self.cfg.merge_from_file(self.cfg_path)  # load values from a file
+        self.cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"))
+        # self.cfg.MODEL.DEVICE = 'cpu'
+        self.cfg.DATASETS.TRAIN = ('train_instances',)
+        self.cfg.DATASETS.TEST = ('validate_instances',)
+        self.cfg.MODEL.WEIGHTS = './output/potato_model_current.pth'
+        self.cfg.DATALOADER.NUM_WORKERS = 2
+        self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 256
+        self.cfg.SOLVER.IMS_PER_BATCH = 2
+        self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = 10 #self.num_classes
+        self.cfg.SOLVER.GAMMA = 0.5
+        self.cfg.SOLVER.BASE_LR = lr
+        self.cfg.SOLVER.MAX_ITER = max_iter
         self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
         self.cfg.SOLVER.WARMUP_ITERS = 1000
         self.cfg.TEST.EVAL_PERIOD = 4000 #self.eval_period
@@ -203,13 +225,19 @@ class PotatoTrainer:
         self.train_images_path = args.train_images_path
         self.validate_coco_file_path = args.validate_coco_file_path
         self.validate_images_path = args.validate_images_path
+        resume = args.resume
         self._load_datasets(self.train_coco_file_path,
                             self.train_images_path,
                             self.validate_coco_file_path,
                             self.validate_images_path
                             )
-        self._load_cfg()
-        self.train_model(output_folder=self.output_folder)
+        if resume:
+            max_iter = input('Input max iteration (max_iter):')
+            lr = input('Input learning rate (lr):')
+            self._load_cfg_resuming(max_iter=int(max_iter), lr=float(lr))
+        else:
+            self._load_cfg()
+        self.train_model(output_folder=self.output_folder, resume=resume)
 
 
 if __name__ == "__main__":
@@ -247,6 +275,14 @@ if __name__ == "__main__":
         type=str,
         dest="output_folder",
         required=True,
+        help=""
+    )
+    parser.add_argument(
+        "--resume",
+        type=bool,
+        dest="resume",
+        default=False,
+        required=False,
         help=""
     )
     args = parser.parse_args()

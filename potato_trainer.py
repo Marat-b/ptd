@@ -3,6 +3,7 @@ import os
 import shutil
 import sys
 
+import torch
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
 from detectron2.data import build_detection_test_loader, build_detection_train_loader
@@ -10,9 +11,10 @@ from detectron2.data.datasets import register_coco_instances
 from detectron2.engine import PeriodicCheckpointer, default_writers
 from detectron2.evaluation import inference_on_dataset
 from detectron2.model_zoo import model_zoo
-from detectron2.modeling import build_model
+from detectron2.modeling import GeneralizedRCNN, build_model
 from detectron2.utils import comm
 from detectron2.utils.events import EventStorage
+from detectron2.export import TracingAdapter
 from tools.plain_train_net import get_evaluator
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 import logging
@@ -48,7 +50,8 @@ class PotatoTrainer:
         self.cfg.DATASETS.TRAIN = ('train_instances',)
         self.cfg.DATASETS.TEST = ('validate_instances',)
         self.cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(
-            "COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml") #self.weights
+            "COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"
+        )  # self.weights
         self.cfg.DATALOADER.NUM_WORKERS = 2
         self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 256
         self.cfg.SOLVER.IMS_PER_BATCH = 2
@@ -56,8 +59,8 @@ class PotatoTrainer:
         self.cfg.SOLVER.GAMMA = 0.5
         self.cfg.SOLVER.WEIGHT_DECAY = 0
         self.cfg.SOLVER.MOMENTUM = 0
-        self.cfg.SOLVER.BASE_LR = 0.00001 #self.base_lr
-        self.cfg.SOLVER.MAX_ITER = 12000 #elf.max_iter
+        self.cfg.SOLVER.BASE_LR = 0.00001  # self.base_lr
+        self.cfg.SOLVER.MAX_ITER = 12000  # elf.max_iter
         self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
         self.cfg.SOLVER.WARMUP_ITERS = 1000
         self.cfg.TEST.EVAL_PERIOD = self.eval_period
@@ -96,26 +99,50 @@ class PotatoTrainer:
         register_coco_instances('train_instances', {}, train_coco_file_path, train_images_path)
         register_coco_instances('validate_instances', {}, validate_coco_file_path, validate_images_path)
 
+    def _save_torchscript(self):
+        print('Save torch_script file...')
+        self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.8
+        self.cfg.MODEL.WEIGHTS = './output/best_mAP.pth'
+        model = build_model(self.cfg)
+        DetectionCheckpointer(model).resume_or_load(self.cfg.MODEL.WEIGHTS)
+        model.eval()
+        image = torch.randint(255, size=(3, 512, 512))
+        inputs = [{"image": image}]  # remove other unused keys
+        if isinstance(model, GeneralizedRCNN):
+            print('inference is Not None')
+
+            def inference(mdl, inpts):
+                # use do_postprocess=False so it returns ROI mask
+                inst = mdl.inference(inpts, do_postprocess=False)[0]
+                return [{"instances": inst}]
+        else:
+            print('inference is None')
+            inference = None  # assume that we just call the model directly
+        traceable_model = TracingAdapter(model, inputs, inference)
+        ################ torchscript ######################
+        ts_model = torch.jit.trace(traceable_model, (image,))
+        torch.jit.save(ts_model, './output/potato_model.ts')
+
     def train_model(self, resume=False, output_folder='./'):
         def get_ymd():
             now = datetime.datetime.now()
             year = now.year
             month = str(now.month)
             day = str(now.day)
-            hour = str(now.hour)
+            # hour = str(now.hour)
             if len(month) != 2:
                 month = '0' + month
             if len(day) != 2:
                 day = '0' + day
-            if len(hour) != 2:
-                hour = '0' + hour
-            return '{}{}{}{}'.format(year, month, day, hour)
+            # if len(hour) != 2:
+            #     hour = '0' + hour
+            return '{}{}{}'.format(year, month, day)
 
         count_iteration = 200
         logger = logging.getLogger("detectron2")
-        handler = logging.StreamHandler(stream=sys.stdout)
-        logger.addHandler(handler)
-        logger.addFilter(CustomFilter())
+        # handler = logging.StreamHandler(stream=sys.stdout)
+        # logger.addHandler(handler)
+        # logger.addFilter(CustomFilter())
         # Data loader
         dataset_names = [d_names for d_names in self.cfg.DATASETS.TEST]
         print(f'dataset_names={dataset_names}')
@@ -186,8 +213,8 @@ class PotatoTrainer:
                         self.cfg, dataset_name, os.path.join(
                             self.cfg.OUTPUT_DIR,
                             "inference"
-                            )
                         )
+                    )
                     eval_stat = inference_on_dataset(model, valid_loader, evaluator)
                     mAP = list(eval_stat.values())[0]['AP']
                     print(f'mAP={mAP}')
@@ -230,11 +257,12 @@ class PotatoTrainer:
         self.validate_coco_file_path = args.validate_coco_file_path
         self.validate_images_path = args.validate_images_path
         resume = args.resume
-        self._load_datasets(self.train_coco_file_path,
-                            self.train_images_path,
-                            self.validate_coco_file_path,
-                            self.validate_images_path
-                            )
+        self._load_datasets(
+            self.train_coco_file_path,
+            self.train_images_path,
+            self.validate_coco_file_path,
+            self.validate_images_path
+            )
         if resume:
             max_iter = input('Input max iteration (max_iter):')
             lr = input('Input learning rate (lr):')
@@ -242,24 +270,27 @@ class PotatoTrainer:
         else:
             self._load_cfg()
         self.train_model(output_folder=self.output_folder, resume=resume)
+        self._save_torchscript()
 
 
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Trainer Composition")
-    parser.add_argument("--train_coco_dir",
-                        type=str,
-                        dest="train_coco_file_path",
-                        required=True,
-                        help="Path of json file of COCO format")
+    parser.add_argument(
+        "--train_coco_dir",
+        type=str,
+        dest="train_coco_file_path",
+        required=True,
+        help="Path of json file of COCO format"
+        )
     parser.add_argument(
         "--train_images_dir",
         type=str,
         dest="train_images_path",
         required=True,
         help=""
-        )
+    )
     parser.add_argument(
         "--validate_coco_dir",
         type=str,

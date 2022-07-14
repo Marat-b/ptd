@@ -54,6 +54,8 @@ class PotatoTrainer:
         self.cfg.SOLVER.IMS_PER_BATCH = 2
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = 10 #self.num_classes
         self.cfg.SOLVER.GAMMA = 0.5
+        self.cfg.SOLVER.WEIGHT_DECAY = 0
+        self.cfg.SOLVER.MOMENTUM = 0
         self.cfg.SOLVER.BASE_LR = 0.0001 #self.base_lr
         self.cfg.SOLVER.MAX_ITER = 12000 #elf.max_iter
         self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
@@ -75,6 +77,8 @@ class PotatoTrainer:
         self.cfg.SOLVER.IMS_PER_BATCH = 2
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = 10 #self.num_classes
         self.cfg.SOLVER.GAMMA = 0.5
+        self.cfg.SOLVER.WEIGHT_DECAY = 0
+        self.cfg.SOLVER.MOMENTUM = 0
         self.cfg.SOLVER.BASE_LR = lr
         self.cfg.SOLVER.MAX_ITER = max_iter
         self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200

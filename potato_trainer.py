@@ -53,10 +53,10 @@ class PotatoTrainer:
         self.cfg.SOLVER.IMS_PER_BATCH = 2
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = 10 #self.num_classes
         self.cfg.SOLVER.BASE_LR = 0.0001 #self.base_lr
-        self.cfg.SOLVER.MAX_ITER = 200 #elf.max_iter
-        # self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
-        # self.cfg.SOLVER.WARMUP_ITERS = 200
-        self.cfg.TEST.EVAL_PERIOD = 100 #self.eval_period
+        self.cfg.SOLVER.MAX_ITER = 2000 #elf.max_iter
+        self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
+        self.cfg.SOLVER.WARMUP_ITERS = 200
+        self.cfg.TEST.EVAL_PERIOD = 1000 #self.eval_period
         self.cfg.SOLVER.WARMUP_METHOD = "linear"
         os.makedirs(self.cfg.OUTPUT_DIR, exist_ok=True)
 
@@ -70,6 +70,7 @@ class PotatoTrainer:
         register_coco_instances('validate_instances', {}, validate_coco_file_path, validate_images_path)
 
     def train_model(self, resume=False, output_folder='./'):
+        count_iteration = 200
         logger = logging.getLogger("detectron2")
         handler = logging.StreamHandler(stream=sys.stdout)
         logger.addHandler(handler)
@@ -121,8 +122,8 @@ class PotatoTrainer:
                 # store the loss and lr
                 storage.put_scalars(total_loss=losses_reduced, **loss_dict_reduced)
                 storage.put_scalar("lr", optimizer.param_groups[0]["lr"], smoothing_hint=False)
-                print(f'losses_reduced={losses_reduced}, lr={optimizer.param_groups[0]["lr"]}')
-                if iteration % 10 == 0:
+                if iteration % count_iteration == 0:
+                    print(f'iter={iteration}, losses_reduced={losses_reduced}, lr={optimizer.param_groups[0]["lr"]}')
                     logger.info(
                         f'iter={iteration}, losses_reduced={losses_reduced}, lr={optimizer.param_groups[0]["lr"]}'
                     )
@@ -148,6 +149,7 @@ class PotatoTrainer:
                         )
                     eval_stat = inference_on_dataset(model, valid_loader, evaluator)
                     mAP = list(eval_stat.values())[0]['AP']
+                    print(f'mAP={mAP}')
                     if mAP > best_mAP:
                         best_mAP = mAP
                         checkpointer.save("best_mAP")

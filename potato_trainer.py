@@ -53,10 +53,10 @@ class PotatoTrainer:
         self.cfg.SOLVER.IMS_PER_BATCH = 2
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = 10 #self.num_classes
         self.cfg.SOLVER.BASE_LR = 0.0001 #self.base_lr
-        self.cfg.SOLVER.MAX_ITER = 20 #elf.max_iter
+        self.cfg.SOLVER.MAX_ITER = 200 #elf.max_iter
         # self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
         # self.cfg.SOLVER.WARMUP_ITERS = 200
-        self.cfg.TEST.EVAL_PERIOD = 10 #self.eval_period
+        self.cfg.TEST.EVAL_PERIOD = 100 #self.eval_period
         self.cfg.SOLVER.WARMUP_METHOD = "linear"
         os.makedirs(self.cfg.OUTPUT_DIR, exist_ok=True)
 
@@ -121,7 +121,7 @@ class PotatoTrainer:
                 # store the loss and lr
                 storage.put_scalars(total_loss=losses_reduced, **loss_dict_reduced)
                 storage.put_scalar("lr", optimizer.param_groups[0]["lr"], smoothing_hint=False)
-                # print(f'losses_reduced={losses_reduced}, lr={optimizer.param_groups[0]["lr"]}')
+                print(f'losses_reduced={losses_reduced}, lr={optimizer.param_groups[0]["lr"]}')
                 if iteration % 10 == 0:
                     logger.info(
                         f'iter={iteration}, losses_reduced={losses_reduced}, lr={optimizer.param_groups[0]["lr"]}'
@@ -129,6 +129,7 @@ class PotatoTrainer:
 
                 # validation
                 if (self.cfg.TEST.EVAL_PERIOD > 0 and (iteration + 1) % self.cfg.TEST.EVAL_PERIOD == 0):
+                    print("save potato_model_current")
                     checkpointer.save("potato_model_current")
                     shutil.copy(
                         './output/potato_model_current.pth',
@@ -150,6 +151,7 @@ class PotatoTrainer:
                     if mAP > best_mAP:
                         best_mAP = mAP
                         checkpointer.save("best_mAP")
+                        print(f'Save Best Score: {best_mAP:.4f}')
                         logger.info(f'Save Best Score: {best_mAP:.4f}')
                         shutil.copy(
                             './output/best_mAP.pth',

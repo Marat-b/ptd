@@ -54,10 +54,10 @@ class PotatoTrainer:
         self.cfg.SOLVER.IMS_PER_BATCH = 2
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = 10 #self.num_classes
         self.cfg.SOLVER.BASE_LR = 0.0001 #self.base_lr
-        self.cfg.SOLVER.MAX_ITER = 2000 #elf.max_iter
+        self.cfg.SOLVER.MAX_ITER = 12000 #elf.max_iter
         self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
-        self.cfg.SOLVER.WARMUP_ITERS = 200
-        self.cfg.TEST.EVAL_PERIOD = 1000 #self.eval_period
+        self.cfg.SOLVER.WARMUP_ITERS = 1000
+        self.cfg.TEST.EVAL_PERIOD = 4000 #self.eval_period
         self.cfg.SOLVER.WARMUP_METHOD = "linear"
         os.makedirs(self.cfg.OUTPUT_DIR, exist_ok=True)
 

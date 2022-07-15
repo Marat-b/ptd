@@ -309,7 +309,8 @@ if __name__ == "__main__":
         "--output_folder",
         type=str,
         dest="output_folder",
-        required=True,
+        required=False,
+        default="./",
         help=""
     )
     parser.add_argument(

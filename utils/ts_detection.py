@@ -3,6 +3,8 @@ import cv2
 import torch
 import numpy as np
 
+from cv2_imshow import cv2_imshow
+
 
 class TorchscriptDetection:
     def __init__(self, path_inference, use_cuda=True):
@@ -32,17 +34,17 @@ class TorchscriptDetection:
             cls_conf.append(score)
             cls_ids.append(_class)
             # masks.append(pr_mask)
-            length = self._get_width_pixel_ts(pr_mask, box)
+            new_mask = self._get_mask(pr_mask, box)
             # print(pr_mask)
             print(pr_mask.dtype, pr_mask.shape)
-            new_mask = pr_mask.transpose((1, 2, 0))
-            new_mask[new_mask > 0.9] = 1.0
-            new_mask = new_mask.astype('uint8') * 255
-            new_mask = cv2.resize(new_mask, (length, length))
+            # new_mask = pr_mask.transpose((1, 2, 0))
+            # new_mask[new_mask > 0.9] = 1.0
+            # new_mask = new_mask.astype('uint8') * 255
+            # new_mask = cv2.resize(new_mask, (length, length))
             masks.append(new_mask)
             print(new_mask.dtype, new_mask.shape)
-            cv2.imshow('new_mask', new_mask)
-            cv2.waitKey(0)
+            # cv2.imshow('new_mask', new_mask)
+            # cv2.waitKey(0)
 
         return np.array(bbox_xcycwh, dtype=np.float64), np.array(cls_conf), np.array(cls_ids), np.array(masks)
 
@@ -64,15 +66,15 @@ class TorchscriptDetection:
     #         # print(img_masks.shape)
     #     # print(np.array(np.uint8(img_masks)*255))
     #     return np.array(np.uint8(img_masks)*255)
-    def _get_width_pixel_ts(self, image_mask, box):
+    def _get_mask(self, image_mask, box):
         """
-        Get biggest side of object (width) in pixels
+        Get real mask from 28x28 mask
         Parameters:
         ----------
             image_mask:  np.array -  image mask (black-white)
         Returns:
         -------
-            width: int - width in pixel
+            new_mask: np.array
         """
         def calculate_distance(point_a, point_b):
             dist = np.sqrt((point_a[0] - point_b[0]) ** 2 + (point_a[1] - point_b[1]) ** 2)
@@ -95,18 +97,25 @@ class TorchscriptDetection:
         # height = calculate_distance(top, bottom)
         # length = width if width > height else height
         # return int((box_len * length) / 28)
-        return mask, height_box, width_box
+        new_mask = cv2.resize(mask * 255,(int(width_box), int(height_box)))
+        return new_mask
 
+    def visualize(self, image, mask, bbox,):
+        # bbox = cxcywh
+        pass
 
 if __name__ == '__main__':
     tsd = TorchscriptDetection('../weights/potato_best20220715.ts', use_cuda=False)
     img = cv2.imread('../images/300000000.jpg')
+    cv2_imshow(img, 'img')
     pred_boxes, scores, pred_classes, masks = tsd.detect(img)
     print(f'pred_boxes={pred_boxes}')
     print(f'scores={scores}')
     print(f'pred_classes={pred_classes}')
     for mask in masks:
         print(f'mask.shape={mask.shape}')
+        cv2_imshow(mask, 'mask')
+        cv2.addWeighted(img, 0.5, mask, 0.5, 0.0)
     # if len(pred_masks) > 0:
     #     print(f'pred_masks={pred_masks[0].shape}')
     # im = tsd.detect2(img)

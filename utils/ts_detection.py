@@ -31,7 +31,7 @@ class TorchscriptDetection:
             bbox_xcycwh.append([(x1 + x0) / 2, (y1 + y0) / 2, (x1 - x0), (y1 - y0)])
             cls_conf.append(score)
             cls_ids.append(_class)
-            masks.append(pr_mask)
+            # masks.append(pr_mask)
             length = self._get_width_pixel_ts(pr_mask, box)
             # print(pr_mask)
             print(pr_mask.dtype, pr_mask.shape)
@@ -39,6 +39,7 @@ class TorchscriptDetection:
             new_mask[new_mask > 0.9] = 1.0
             new_mask = new_mask.astype('uint8') * 255
             new_mask = cv2.resize(new_mask, (length, length))
+            masks.append(new_mask)
             print(new_mask.dtype, new_mask.shape)
             cv2.imshow('new_mask', new_mask)
             cv2.waitKey(0)
@@ -76,35 +77,38 @@ class TorchscriptDetection:
         def calculate_distance(point_a, point_b):
             dist = np.sqrt((point_a[0] - point_b[0]) ** 2 + (point_a[1] - point_b[1]) ** 2)
             return dist
-        width = box[2] - box[0]
-        height = box[3] - box[1]
-        # print(f'width={width}, height={height}')
-        box_len = width if width > height else height
+        width_box = box[2] - box[0]
+        height_box = box[3] - box[1]
+        print(f'width_box={width_box}, height_box={height_box}')
+        # box_len = width if width > height else height
         mask = image_mask[0]  # .astype('uint8')
         mask[mask > 0.9] = 1.0
         mask = mask.astype('uint8')
-        f = np.argwhere(mask > 0)
-        f_max = np.argmax(f, axis=0)
-        bottom = f[f_max[0]]
-        right = f[f_max[1]]
-        f_min = np.argmin(f, axis=0)
-        top = np.array([f[f_min[0]][0], bottom[1]])
-        left = np.array([right[0], f[f_min[1]][1]])
-        width = calculate_distance(left, right)
-        height = calculate_distance(top, bottom)
-        length = width if width > height else height
-        return int((box_len * length) / 28)
+        # f = np.argwhere(mask > 0)
+        # f_max = np.argmax(f, axis=0)
+        # bottom = f[f_max[0]]
+        # right = f[f_max[1]]
+        # f_min = np.argmin(f, axis=0)
+        # top = np.array([f[f_min[0]][0], bottom[1]])
+        # left = np.array([right[0], f[f_min[1]][1]])
+        # width = calculate_distance(left, right)
+        # height = calculate_distance(top, bottom)
+        # length = width if width > height else height
+        # return int((box_len * length) / 28)
+        return mask, height_box, width_box
 
 
 if __name__ == '__main__':
     tsd = TorchscriptDetection('../weights/potato_best20220715.ts', use_cuda=False)
-    img = cv2.imread('../images/400000000.jpg')
-    pred_boxes, scores, pred_classes, pred_masks = tsd.detect(img)
+    img = cv2.imread('../images/300000000.jpg')
+    pred_boxes, scores, pred_classes, masks = tsd.detect(img)
     print(f'pred_boxes={pred_boxes}')
     print(f'scores={scores}')
     print(f'pred_classes={pred_classes}')
-    if len(pred_masks) > 0:
-        print(f'pred_masks={pred_masks[0].shape}')
+    for mask in masks:
+        print(f'mask.shape={mask.shape}')
+    # if len(pred_masks) > 0:
+    #     print(f'pred_masks={pred_masks[0].shape}')
     # im = tsd.detect2(img)
     # print(im)
     # cv2.imshow('im', im)

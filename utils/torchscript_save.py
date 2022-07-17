@@ -26,7 +26,7 @@ def main(args):
         test_images_path
     )
 
-    img = cv2.imread('./images/000000000.jpg')
+    # img = cv2.imread('./images/000000000.jpg')
 
     cfg = get_cfg()
     # cfg = add_export_config(cfg)
@@ -41,9 +41,9 @@ def main(args):
     model.eval()
 
     # height, width = img.shape[:2]
-    image = torch.as_tensor(img.astype("float32").transpose(2, 0, 1))
-    # image = torch.randint(255, size=(3, 512, 512)).to(torch.float32)
-    print(image)
+    # image = torch.as_tensor(img.astype("float32").transpose(2, 0, 1))
+    image = torch.randint(255, size=(3, 512, 512)).to(torch.float32)
+    # print(image)
     # inputs = {"image": image, "height": height, "width": width}
     inputs = [{"image": image}]  # remove other unused keys
     if isinstance(model, GeneralizedRCNN):

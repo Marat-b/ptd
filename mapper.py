@@ -10,7 +10,7 @@ class MyMapper:
             aug_list = [
                 # T.ResizeShortestEdge([800, 800], sample_style='range'),
                 T.RandomBrightness(0.8, 1.2),
-                T.RandomRotation([0.5, 1]),
+                # T.RandomRotation([0.5, 1]),
                 T.RandomContrast(0.8, 1.2),
                 T.RandomSaturation(0.8, 1.2),
                 # T.RandomFlip(prob=0.5, horizontal=True, vertical=False)

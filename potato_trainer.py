@@ -138,7 +138,7 @@ class PotatoTrainer:
             #     hour = '0' + hour
             return '{}{}{}'.format(year, month, day)
 
-        count_iteration = 200
+        count_iteration = 2000
         logger = logging.getLogger("detectron2")
         # handler = logging.StreamHandler(stream=sys.stdout)
         # logger.addHandler(handler)

@@ -32,9 +32,9 @@ class PotatoTrainer:
         self.cfg_path = './config_potato.yml'
         # self.dataset_test = None
         # self.dataset_train = None
-        self.eval_period = 2000
+        self.eval_period = 20000
         # self.max_iter = 1
-        self.num_classes = 10
+        self.num_classes = 11
         self.output_folder = None
         self.train_coco_file_path = None
         self.train_images_path = None
@@ -60,7 +60,7 @@ class PotatoTrainer:
         self.cfg.SOLVER.WEIGHT_DECAY = 0
         self.cfg.SOLVER.MOMENTUM = 0
         self.cfg.SOLVER.BASE_LR = 0.00001  # self.base_lr
-        self.cfg.SOLVER.MAX_ITER = 12000  # elf.max_iter
+        self.cfg.SOLVER.MAX_ITER = 300000  # elf.max_iter
         self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
         self.cfg.SOLVER.WARMUP_ITERS = 1000
         self.cfg.TEST.EVAL_PERIOD = self.eval_period
@@ -157,7 +157,7 @@ class PotatoTrainer:
             momentum=self.cfg.SOLVER.MOMENTUM
         )
         scheduler = ReduceLROnPlateau(
-            optimizer, mode='max', factor=self.cfg.SOLVER.GAMMA, patience=2, verbose=True, eps=1e-8
+            optimizer, mode='max', factor=self.cfg.SOLVER.GAMMA, patience=5, verbose=True, eps=1e-8
         )
 
         # Checkpoint

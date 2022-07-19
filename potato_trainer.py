@@ -53,14 +53,15 @@ class PotatoTrainer:
             "COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"
         )  # self.weights
         self.cfg.DATALOADER.NUM_WORKERS = 2
-        self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 256
+        self.cfg.MODEL.RPN.BATCH_SIZE_PER_IMAGE = 256
+        self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512
         self.cfg.SOLVER.IMS_PER_BATCH = 2
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = self.num_classes
         self.cfg.SOLVER.GAMMA = 0.5
         self.cfg.SOLVER.WEIGHT_DECAY = 0
         self.cfg.SOLVER.MOMENTUM = 0
         self.cfg.SOLVER.BASE_LR = 0.000001  # self.base_lr
-        self.cfg.SOLVER.MAX_ITER = 300000  # elf.max_iter
+        self.cfg.SOLVER.MAX_ITER = 600000  # elf.max_iter
         self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
         self.cfg.SOLVER.WARMUP_ITERS = 1000
         self.cfg.TEST.EVAL_PERIOD = self.eval_period
@@ -76,7 +77,8 @@ class PotatoTrainer:
         self.cfg.DATASETS.TEST = ('validate_instances',)
         self.cfg.MODEL.WEIGHTS = './output/potato_model_current.pth'
         self.cfg.DATALOADER.NUM_WORKERS = 2
-        self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 256
+        self.cfg.MODEL.RPN.BATCH_SIZE_PER_IMAGE = 256
+        self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512
         self.cfg.SOLVER.IMS_PER_BATCH = 2
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = self.num_classes
         self.cfg.SOLVER.GAMMA = 0.5

@@ -110,9 +110,9 @@ class TorchscriptDetection:
 
 
 if __name__ == '__main__':
-    tsd = TorchscriptDetection('../weights/potato_best20220715.ts', use_cuda=False)
-    # img = cv2.imread('../images/000000000.jpg')
-    img = cv2.imread(r'C:\softz\work\potato\dataset_cl11\20220506_112004\potato_10.jpg')
+    tsd = TorchscriptDetection('../weights/potato_best20220719.ts', use_cuda=False)
+    img = cv2.imread('../images/1000000000.jpg')
+    # img = cv2.imread(r'C:\softz\work\potato\dataset_cl11\20220506_112004\potato_10.jpg')
     cv2_imshow(img, 'img')
     pred_boxes, scores, pred_classes, masks = tsd.detect(img)
     # print(f'pred_boxes={pred_boxes}')

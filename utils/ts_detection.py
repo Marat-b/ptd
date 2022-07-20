@@ -73,47 +73,50 @@ class TorchscriptDetection:
         new_mask = cv2.resize(mask, (width_box, height_box))
         return new_mask
 
-    def visualize(self, image):
+    def visualize(self, image, confidence=0.1):
         pr_boxes, scores, pr_classes, masks = self.detect(image)
         # print(f'pred_boxes={pred_boxes}')
         # print(f'scores={scores}')
         # print(f'pred_classes={pred_classes}')
         for bbox, pr_score, pr_class, image_mask in zip(pr_boxes, scores, pr_classes, masks):
-            x0, y0, x1, y1 = bbox
-            x0 = int(x0)
-            y0 = int(y0)
-            x1 = int(x1)
-            y1 = int(y1)
-            z_mask = np.zeros_like(image)
-            # print(f'z_mask.shape={z_mask.shape}')
-            image_mask_merged = cv2.merge((image_mask, image_mask, image_mask))
-            z_mask[y0:y1, x0:x1] = image_mask_merged
-            # c02_imshow(z_mask * 205, 'z_mask')
-            image2 = cv2.bitwise_and(image, z_mask * 205)
-            # cv2_imshow(image2, 'image2')
-            z_image = image2 * np.array(self.color_mask[pr_class]).astype('uint8')
-            # cv2_imshow(z_image, 'z_image')
-            image_weighted = cv2.addWeighted(image2, 0.7, z_image, 0.3, 0.0)
-            # cv2_imshow(image_weighted, 'image_weighted')
-            mask_inverted = cv2.bitwise_not(z_mask * 255)
-            # cv2_imshow(mask_inverted, 'mask_inverted')
-            image = cv2.bitwise_or(cv2.bitwise_and(image, mask_inverted), image_weighted)
-            # cv2_imshow(new_image[:, :, [2, 1, 0]], 'new_image')
-            t_size = cv2.getTextSize(self.class_names[pr_class], cv2.FONT_HERSHEY_PLAIN, 2, 2)[0]
-            cv2.rectangle(image, (x0, y0), (x1, y1), self.color_mask[pr_class], 3)
-            cv2.rectangle(image, (x0, y0), (x0 + t_size[0] + 3, y0 + t_size[1] + 4), self.color_mask[pr_class], -1)
-            cv2.putText(
-                image, self.class_names[pr_class], (x0, y0 + t_size[1] + 4),
-                cv2.FONT_HERSHEY_PLAIN, 2, [255, 255, 255], 2
-            )
+            if pr_score >= confidence:
+                x0, y0, x1, y1 = bbox
+                x0 = int(x0)
+                y0 = int(y0)
+                x1 = int(x1)
+                y1 = int(y1)
+                z_mask = np.zeros_like(image)
+                # print(f'z_mask.shape={z_mask.shape}')
+                image_mask_merged = cv2.merge((image_mask, image_mask, image_mask))
+                z_mask[y0:y1, x0:x1] = image_mask_merged
+                # c02_imshow(z_mask * 205, 'z_mask')
+                image2 = cv2.bitwise_and(image, z_mask * 205)
+                # cv2_imshow(image2, 'image2')
+                z_image = image2 * np.array(self.color_mask[pr_class]).astype('uint8')
+                # cv2_imshow(z_image, 'z_image')
+                image_weighted = cv2.addWeighted(image2, 0.7, z_image, 0.3, 0.0)
+                # cv2_imshow(image_weighted, 'image_weighted')
+                mask_inverted = cv2.bitwise_not(z_mask * 255)
+                # cv2_imshow(mask_inverted, 'mask_inverted')
+                image = cv2.bitwise_or(cv2.bitwise_and(image, mask_inverted), image_weighted)
+                # cv2_imshow(new_image[:, :, [2, 1, 0]], 'new_image')
+                t_size = cv2.getTextSize(self.class_names[pr_class], cv2.FONT_HERSHEY_PLAIN, 2, 2)[0]
+                cv2.rectangle(image, (x0, y0), (x1, y1), self.color_mask[pr_class], 3)
+                cv2.rectangle(image, (x0, y0), (x0 + t_size[0] + 3, y0 + t_size[1] + 4), self.color_mask[pr_class], -1)
+                cv2.putText(
+                    image, self.class_names[pr_class], (x0, y0 + t_size[1] + 4),
+                    cv2.FONT_HERSHEY_PLAIN, 2, [255, 255, 255], 2
+                )
         return image
 
 
 if __name__ == '__main__':
-    tsd = TorchscriptDetection('../weights/potato_best20220719.ts', use_cuda=False)
-    img = cv2.imread('../images/1000000000.jpg')
-    # img = cv2.imread(r'C:\softz\work\potato\dataset_cl11\20220506_112004\potato_10.jpg')
+    tsd = TorchscriptDetection('../weights/potato_best20220720.ts', use_cuda=False)
+    # img = cv2.imread('../images/20220418_140007.jpg')
+    # img = cv2.imread(r'C:\softz\work\potato\dataset_cl11\20220506_112004\potato_9.jpg')
+    img = cv2.imread(r'C:\softz\work\potato\dataset_cl11\20220506_113423\potato_14.jpg')
     cv2_imshow(img, 'img')
+    # img = cv2.resize(img, (512, 512))
     pred_boxes, scores, pred_classes, masks = tsd.detect(img)
     # print(f'pred_boxes={pred_boxes}')
     print(f'scores={scores}')
@@ -121,5 +124,5 @@ if __name__ == '__main__':
     # for pred_box, score, pred_class, mask in zip(pred_boxes, scores, pred_classes, masks):
         # print(f'mask.shape={mask.shape}')
         # img = tsd.visualize(img, pred_box, score, pred_class, mask)
-    img = tsd.visualize(img)
+    img = tsd.visualize(img, confidence=0.8)
     cv2_imshow(img, 'img')

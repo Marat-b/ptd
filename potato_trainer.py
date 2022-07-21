@@ -30,12 +30,14 @@ class PotatoTrainer:
         # self.base_lr = base_lr
         self.cfg = None
         self.cfg_path = './config_potato.yml'
+        self.count_iteration = 2000
         # self.dataset_test = None
         # self.dataset_train = None
         self.eval_period = 20000
         # self.max_iter = 1
         self.num_classes = 11
         self.output_folder = None
+        self.patience = 2
         self.train_coco_file_path = None
         self.train_images_path = None
         self.validate_coco_file_path = None
@@ -46,6 +48,7 @@ class PotatoTrainer:
         self.cfg = get_cfg()  # obtain detectron2's default config
         # self.cfg.merge_from_file(self.cfg_path)  # load values from a file
         self.cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"))
+        self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.1
         # self.cfg.MODEL.DEVICE = 'cpu'
         self.cfg.DATASETS.TRAIN = ('train_instances',)
         self.cfg.DATASETS.TEST = ('validate_instances',)
@@ -57,9 +60,9 @@ class PotatoTrainer:
         self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512
         self.cfg.SOLVER.IMS_PER_BATCH = 2
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = self.num_classes
-        self.cfg.SOLVER.GAMMA = 0.5
-        self.cfg.SOLVER.WEIGHT_DECAY = 0
-        self.cfg.SOLVER.MOMENTUM = 0
+        self.cfg.SOLVER.GAMMA = 0.8
+        self.cfg.SOLVER.WEIGHT_DECAY = 0  # for MADGRAD
+        self.cfg.SOLVER.MOMENTUM = 0  # for MADGRAD
         self.cfg.SOLVER.BASE_LR = 0.000001  # self.base_lr
         self.cfg.SOLVER.MAX_ITER = 600000  # elf.max_iter
         self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
@@ -72,6 +75,7 @@ class PotatoTrainer:
         self.cfg = get_cfg()  # obtain detectron2's default config
         # self.cfg.merge_from_file(self.cfg_path)  # load values from a file
         self.cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"))
+        self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.1
         # self.cfg.MODEL.DEVICE = 'cpu'
         self.cfg.DATASETS.TRAIN = ('train_instances',)
         self.cfg.DATASETS.TEST = ('validate_instances',)
@@ -81,7 +85,7 @@ class PotatoTrainer:
         self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512
         self.cfg.SOLVER.IMS_PER_BATCH = 2
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = self.num_classes
-        self.cfg.SOLVER.GAMMA = 0.5
+        self.cfg.SOLVER.GAMMA = 0.8
         self.cfg.SOLVER.WEIGHT_DECAY = 0
         self.cfg.SOLVER.MOMENTUM = 0
         self.cfg.SOLVER.BASE_LR = lr
@@ -103,7 +107,7 @@ class PotatoTrainer:
 
     def _save_torchscript(self):
         print('Save torch_script file...')
-        self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.8
+        self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
         self.cfg.MODEL.WEIGHTS = './output/best_mAP.pth'
         model = build_model(self.cfg)
         DetectionCheckpointer(model).resume_or_load(self.cfg.MODEL.WEIGHTS)
@@ -131,16 +135,16 @@ class PotatoTrainer:
             year = now.year
             month = str(now.month)
             day = str(now.day)
-            # hour = str(now.hour)
+            hour = str(now.hour)
             if len(month) != 2:
                 month = '0' + month
             if len(day) != 2:
                 day = '0' + day
-            # if len(hour) != 2:
-            #     hour = '0' + hour
-            return '{}{}{}'.format(year, month, day)
+            if len(hour) != 2:
+                hour = '0' + hour
+            return '{}{}{}{}'.format(year, month, day, hour)
 
-        count_iteration = 2000
+        count_iteration = self.count_iteration
         logger = logging.getLogger("detectron2")
         # handler = logging.StreamHandler(stream=sys.stdout)
         # logger.addHandler(handler)
@@ -154,12 +158,13 @@ class PotatoTrainer:
 
         # Model, optimizer, scheduler
         model = build_model(self.cfg)
+        # On  sparse  problems  both  weight_decay and momentum  should  be  set  to 0.
         optimizer = MADGRAD(
             model.parameters(), lr=self.cfg.SOLVER.BASE_LR, weight_decay=self.cfg.SOLVER.WEIGHT_DECAY,
             momentum=self.cfg.SOLVER.MOMENTUM
         )
         scheduler = ReduceLROnPlateau(
-            optimizer, mode='max', factor=self.cfg.SOLVER.GAMMA, patience=5, verbose=True, eps=1e-8
+            optimizer, mode='max', factor=self.cfg.SOLVER.GAMMA, patience=self.patience, verbose=True, eps=1e-8
         )
 
         # Checkpoint
@@ -264,7 +269,7 @@ class PotatoTrainer:
             self.train_images_path,
             self.validate_coco_file_path,
             self.validate_images_path
-            )
+        )
         if resume:
             max_iter = input('Input max iteration (max_iter):')
             lr = input('Input learning rate (lr):')
@@ -285,7 +290,7 @@ if __name__ == "__main__":
         dest="train_coco_file_path",
         required=True,
         help="Path of json file of COCO format"
-        )
+    )
     parser.add_argument(
         "--train_images_dir",
         type=str,

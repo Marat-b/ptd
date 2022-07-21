@@ -111,12 +111,12 @@ class TorchscriptDetection:
 
 
 if __name__ == '__main__':
-    tsd = TorchscriptDetection('../weights/potato_best20220720.ts', use_cuda=False)
-    # img = cv2.imread('../images/20220418_140007.jpg')
+    tsd = TorchscriptDetection('../weights/potato_current.ts', use_cuda=False)
+    img = cv2.imread('../images/20220625_182034.jpg')
     # img = cv2.imread(r'C:\softz\work\potato\dataset_cl11\20220506_112004\potato_9.jpg')
-    img = cv2.imread(r'C:\softz\work\potato\dataset_cl11\20220506_113423\potato_14.jpg')
+    # img = cv2.imread(r'C:\softz\work\potato\dataset_cl11\20220506_113423\potato_14.jpg')
     cv2_imshow(img, 'img')
-    # img = cv2.resize(img, (512, 512))
+    img = cv2.resize(img, (512, 512))
     pred_boxes, scores, pred_classes, masks = tsd.detect(img)
     # print(f'pred_boxes={pred_boxes}')
     print(f'scores={scores}')
@@ -124,5 +124,5 @@ if __name__ == '__main__':
     # for pred_box, score, pred_class, mask in zip(pred_boxes, scores, pred_classes, masks):
         # print(f'mask.shape={mask.shape}')
         # img = tsd.visualize(img, pred_box, score, pred_class, mask)
-    img = tsd.visualize(img, confidence=0.8)
+    img = tsd.visualize(img, confidence=0.5)
     cv2_imshow(img, 'img')

@@ -1,3 +1,5 @@
+
+
 import torchvision  # need to put first
 import cv2
 import torch
@@ -111,18 +113,40 @@ class TorchscriptDetection:
 
 
 if __name__ == '__main__':
-    tsd = TorchscriptDetection('../weights/potato_current.ts', use_cuda=False)
-    img = cv2.imread('../images/20220625_182034.jpg')
-    # img = cv2.imread(r'C:\softz\work\potato\dataset_cl11\20220506_112004\potato_9.jpg')
-    # img = cv2.imread(r'C:\softz\work\potato\dataset_cl11\20220506_113423\potato_14.jpg')
-    cv2_imshow(img, 'img')
+    import argparse
+    parser = argparse.ArgumentParser(description="Detection & Visualize")
+    parser.add_argument(
+        "--weight",
+        type=str,
+        dest="weight_path",
+        required=True,
+        help="Path of weight file"
+    )
+    parser.add_argument(
+        "--image",
+        type=str,
+        dest="image_path",
+        required=True,
+        help="Path of image file"
+    )
+    parser.add_argument(
+        "--confidence",
+        type=float,
+        dest="confidence",
+        required=False,
+        default=0.5,
+        help="Confidence of prediction"
+    )
+    p_args = parser.parse_args()
+    tsd = TorchscriptDetection(p_args.weight_path, use_cuda=False)
+    img = cv2.imread(p_args.image_path)
+
+    # cv2_imshow(img, 'img')
     img = cv2.resize(img, (512, 512))
     pred_boxes, scores, pred_classes, masks = tsd.detect(img)
     # print(f'pred_boxes={pred_boxes}')
     print(f'scores={scores}')
     print(f'pred_classes={pred_classes}')
-    # for pred_box, score, pred_class, mask in zip(pred_boxes, scores, pred_classes, masks):
-        # print(f'mask.shape={mask.shape}')
-        # img = tsd.visualize(img, pred_box, score, pred_class, mask)
-    img = tsd.visualize(img, confidence=0.5)
+
+    img = tsd.visualize(img, confidence=p_args.confidence)
     cv2_imshow(img, 'img')

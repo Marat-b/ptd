@@ -35,5 +35,5 @@ def main(path_inference, image_path):
         cv2_imshow(new_image, '{}. new_image'.format(i))
 
 if __name__ == '__main__':
-    main('../weights/potato_current.ts',
-         '../images/rotten-old-sprouting-potatoes-light-background-group-germinating-119156341.jpg')
+    main('../weights/potato_best20220720.ts',
+         '../images/20220418_101400.jpg')

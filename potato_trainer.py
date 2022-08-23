@@ -145,6 +145,13 @@ class PotatoTrainer:
             return '{}{}{}{}'.format(year, month, day, hour)
 
         count_iteration = self.count_iteration
+        logging.basicConfig(
+            filename='log.txt',
+            filemode='a',
+            format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+            datefmt='%H:%M:%S',
+            level=logging.DEBUG
+        )
         logger = logging.getLogger("detectron2")
         # handler = logging.StreamHandler(stream=sys.stdout)
         # logger.addHandler(handler)

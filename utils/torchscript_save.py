@@ -12,6 +12,10 @@ import cv2
 import numpy as np
 import torch
 
+def tuple_type(strings):
+    strings = strings.replace("(", "").replace(")", "")
+    mapped_int = map(int, strings.split(","))
+    return tuple(mapped_int)
 
 def main(args):
     # weights_path = '../weights/potato_model_best_202205311000.pth'
@@ -19,6 +23,8 @@ def main(args):
     test_coco_file_path = args.test_coco_file_path
     test_images_path = args.test_images_path
     output_path = args.output_path
+    new_shape = args.shape
+    cuda = args.cuda
 
     register_coco_instances(
         "potato_dataset_test", {},
@@ -35,14 +41,14 @@ def main(args):
     cfg.DATASETS.TEST = ('potato_dataset_test',)
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
     cfg.MODEL.WEIGHTS = weights_path
-    cfg.MODEL.DEVICE = 'cpu'
+    cfg.MODEL.DEVICE = 'cuda' if cuda else 'cpu'
     model = build_model(cfg)
     DetectionCheckpointer(model).resume_or_load(cfg.MODEL.WEIGHTS)
     model.eval()
 
     # height, width = img.shape[:2]
     # image = torch.as_tensor(img.astype("float32").transpose(2, 0, 1))
-    image = torch.randint(255, size=(3, 1024, 1024)).to(torch.float32)
+    image = torch.randint(255, size=(3, new_shape[0], new_shape[1])).to(torch.float32)
     # image2 = torch.randint(255, size=(3, 512, 512)).to(torch.float32)
     # image3 = torch.randint(255, size=(3, 512, 512)).to(torch.float32)
     # print(image)
@@ -69,32 +75,42 @@ if __name__ == '__main__':
     freeze_support()
     parser = argparse.ArgumentParser(description="Trainer Composition")
     parser.add_argument(
-        "--test_coco_dir",
+        "-tc", "--test_coco_dir",
         type=str,
         dest="test_coco_file_path",
         required=True,
         help="Path of json file of COCO format"
     )
     parser.add_argument(
-        "--test_images_dir",
+        "-ti", "--test_images_dir",
         type=str,
         dest="test_images_path",
         required=True,
         help=""
     )
     parser.add_argument(
-        "--weights",
+        "-w", "--weights",
         type=str,
         dest="weights_path",
         required=True,
         help=""
     )
     parser.add_argument(
-        "--output",
+        "-o","--output",
         type=str,
         dest="output_path",
         required=True,
         help=""
+    )
+    parser.add_argument(
+        "-s", "--shape", default=(512, 512), type=tuple_type,
+        dest="shape",
+        help="New shape of image"
+    )
+    parser.add_argument(
+        "-c", "--cuda", default=True, type=bool,
+        dest="cuda",
+        help="CUDA or CPU, CUDA is default"
     )
     p_args = parser.parse_args()
     main(p_args)

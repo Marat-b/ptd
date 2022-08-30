@@ -8,7 +8,7 @@ from utils.ts_detection import TorchscriptDetection
 def main(path_inference, image_path):
     td = TorchscriptDetection(path_inference, use_cuda=False)
     image = cv2.imread(image_path, cv2.IMREAD_COLOR)
-    image = cv2.resize(image, (512, 512))
+    image = cv2.resize(image, (1024, 1024))
     cv2_imshow(image, 'image')
     pr_boxes, scores, pr_classes, masks = td.detect(image)
     for i, (bbox, pr_score, pr_class, image_mask) in enumerate(zip(pr_boxes, scores, pr_classes, masks)):
@@ -35,5 +35,5 @@ def main(path_inference, image_path):
         cv2_imshow(new_image, '{}. new_image'.format(i))
 
 if __name__ == '__main__':
-    main('../weights/potato_best20220720.ts',
-         '../images/20220418_101400.jpg')
+    main('../weights/potato_best2022082419_1024_11cl.ts',
+         r'C:\softz\work\potato\in\images\20220814_151921.jpg')

@@ -142,7 +142,7 @@ if __name__ == '__main__':
     img = cv2.imread(p_args.image_path)
 
     # cv2_imshow(img, 'img')
-    img = cv2.resize(img, (512, 512))
+    # img = cv2.resize(img, (1024, 1024))
     pred_boxes, scores, pred_classes, masks = tsd.detect(img)
     # print(f'pred_boxes={pred_boxes}')
     print(f'scores={scores}')

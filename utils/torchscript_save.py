@@ -42,7 +42,7 @@ def main(args):
 
     # height, width = img.shape[:2]
     # image = torch.as_tensor(img.astype("float32").transpose(2, 0, 1))
-    image = torch.randint(255, size=(3, 512, 512)).to(torch.float32)
+    image = torch.randint(255, size=(3, 1024, 1024)).to(torch.float32)
     # image2 = torch.randint(255, size=(3, 512, 512)).to(torch.float32)
     # image3 = torch.randint(255, size=(3, 512, 512)).to(torch.float32)
     # print(image)

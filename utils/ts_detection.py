@@ -137,8 +137,15 @@ if __name__ == '__main__':
         default=0.5,
         help="Confidence of prediction"
     )
+    parser.add_argument(
+        "--cuda",
+        type=bool,
+        dest="cuda",
+        default=True,
+        help="Use CUDA (default)"
+    )
     p_args = parser.parse_args()
-    tsd = TorchscriptDetection(p_args.weight_path, use_cuda=False)
+    tsd = TorchscriptDetection(p_args.weight_path, use_cuda=p_args.cuda)
     img = cv2.imread(p_args.image_path)
 
     # cv2_imshow(img, 'img')

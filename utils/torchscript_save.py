@@ -2,29 +2,34 @@ import argparse
 from multiprocessing import freeze_support
 
 from detectron2.checkpoint import DetectionCheckpointer
-from detectron2.data import build_detection_test_loader
+# from detectron2.data import build_detection_test_loader
 from detectron2.data.datasets import register_coco_instances
-from detectron2.export import Caffe2Tracer, TracingAdapter, add_export_config, dump_torchscript_IR
+from detectron2.export import TracingAdapter
 from detectron2.config import get_cfg
 from detectron2 import model_zoo
 from detectron2.modeling import GeneralizedRCNN, build_model
-import cv2
-import numpy as np
+# import cv2
+# import numpy as np
 import torch
+
 
 def tuple_type(strings):
     strings = strings.replace("(", "").replace(")", "")
     mapped_int = map(int, strings.split(","))
     return tuple(mapped_int)
 
+
 def main(args):
-    # weights_path = '../weights/potato_model_best_202205311000.pth'
+    # print(args)
     weights_path = args.weights_path
     test_coco_file_path = args.test_coco_file_path
     test_images_path = args.test_images_path
     output_path = args.output_path
     new_shape = args.shape
-    cuda = args.cuda
+    if eval(args.gpu):
+        device = 'cuda'
+    else:
+        device ='cpu'
 
     register_coco_instances(
         "potato_dataset_test", {},
@@ -41,7 +46,7 @@ def main(args):
     cfg.DATASETS.TEST = ('potato_dataset_test',)
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
     cfg.MODEL.WEIGHTS = weights_path
-    cfg.MODEL.DEVICE = 'cuda' if cuda else 'cpu'
+    cfg.MODEL.DEVICE = device
     model = build_model(cfg)
     DetectionCheckpointer(model).resume_or_load(cfg.MODEL.WEIGHTS)
     model.eval()
@@ -96,7 +101,7 @@ if __name__ == '__main__':
         help=""
     )
     parser.add_argument(
-        "-o","--output",
+        "-o", "--output",
         type=str,
         dest="output_path",
         required=True,
@@ -108,8 +113,8 @@ if __name__ == '__main__':
         help="New shape of image"
     )
     parser.add_argument(
-        "-c", "--cuda", default=True, type=bool,
-        dest="cuda",
+        "-g", "--gpu", default=True,
+        dest="gpu",
         help="CUDA or CPU, CUDA is default"
     )
     p_args = parser.parse_args()

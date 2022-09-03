@@ -7,6 +7,10 @@ import numpy as np
 
 from cv2_imshow import cv2_imshow
 
+def tuple_type(strings):
+    strings = strings.replace("(", "").replace(")", "")
+    mapped_int = map(int, strings.split(","))
+    return tuple(mapped_int)
 
 class TorchscriptDetection:
     def __init__(self, path_inference, use_cuda=True):
@@ -138,18 +142,22 @@ if __name__ == '__main__':
         help="Confidence of prediction"
     )
     parser.add_argument(
+        "-s", "--shape", default=(512, 512), type=tuple_type,
+        dest="shape",
+        help="New shape of image"
+    )
+    parser.add_argument(
         "--cuda",
-        type=bool,
         dest="cuda",
         default=True,
         help="Use CUDA (default)"
     )
     p_args = parser.parse_args()
-    tsd = TorchscriptDetection(p_args.weight_path, use_cuda=p_args.cuda)
+    tsd = TorchscriptDetection(p_args.weight_path, use_cuda=eval(p_args.cuda))
     img = cv2.imread(p_args.image_path)
 
     # cv2_imshow(img, 'img')
-    # img = cv2.resize(img, (1024, 1024))
+    img = cv2.resize(img, p_args.shape)
     pred_boxes, scores, pred_classes, masks = tsd.detect(img)
     # print(f'pred_boxes={pred_boxes}')
     print(f'scores={scores}')

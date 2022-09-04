@@ -9,14 +9,20 @@ class MyMapper:
         if is_train:
             aug_list = [
                 # T.ResizeShortestEdge([800, 800], sample_style='range'),
-                T.RandomBrightness(0.8, 1.2),
+                T.RandomApply(T.RandomBrightness(0.8, 1.2), 0.05),
+                T.RandomApply(T.RandomContrast(0.8, 1.2), 0.05),
                 # T.RandomRotation([0.5, 1]),
-                T.RandomContrast(0.8, 1.2),
-                T.RandomSaturation(0.8, 1.2),
+                T.RandomApply(T.RandomLighting(0.8), 0.01),
+                T.RandomApply(T.RandomSaturation(0.8, 1.2), 0.1),
+                # T.RandomApply(T.CropTransform(50, 50, 300, 300), 0.05),
+                # T.RandomApply(T.ScaleTransform(512, 512, 256, 256), 0.09),
+                # T.RandomApply(T.ExtentTransform([100, 100, 400, 400], [512, 512]), 0.1)
+                T.RandomApply(T.RandomCrop(crop_type='relative', crop_size=(0.5, 1.5)), 0.1),
+                # T.RandomApply(T.RandomExtent([], crop_size=(0.5, 1.5)), 0.1),
                 # T.RandomFlip(prob=0.5, horizontal=True, vertical=False)
             ]
         else:
-            aug_list = [T.ResizeShortestEdge(800, sample_style='choice')]
+            aug_list = [T.ResizeShortestEdge(512, sample_style='choice')]
 
         self.augmentations = T.AugmentationList(aug_list)
         self.is_train = is_train

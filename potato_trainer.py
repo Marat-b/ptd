@@ -56,8 +56,8 @@ class PotatoTrainer:
             "COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"
         )  # self.weights
         self.cfg.DATALOADER.NUM_WORKERS = 2
-        self.cfg.MODEL.RPN.BATCH_SIZE_PER_IMAGE = 256
-        self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512
+        # self.cfg.MODEL.RPN.BATCH_SIZE_PER_IMAGE = 256
+        self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128 # default 512
         self.cfg.SOLVER.IMS_PER_BATCH = 2
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = self.num_classes
         self.cfg.SOLVER.GAMMA = 0.8
@@ -81,8 +81,8 @@ class PotatoTrainer:
         self.cfg.DATASETS.TEST = ('validate_instances',)
         self.cfg.MODEL.WEIGHTS = './output/potato_model_current.pth'
         self.cfg.DATALOADER.NUM_WORKERS = 2
-        self.cfg.MODEL.RPN.BATCH_SIZE_PER_IMAGE = 256
-        self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512
+        # self.cfg.MODEL.RPN.BATCH_SIZE_PER_IMAGE = 256
+        self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128 # default 512
         self.cfg.SOLVER.IMS_PER_BATCH = 2
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = self.num_classes
         self.cfg.SOLVER.GAMMA = 0.8

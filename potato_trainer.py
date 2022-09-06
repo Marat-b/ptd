@@ -196,18 +196,18 @@ class PotatoTrainer:
                 loss_dict = model(data)  # Four types of loss obtained from the faster rcnn model
                 losses = sum(loss_dict.values())
                 loss_dict_reduced = {k: v.item() for k, v in comm.reduce_dict(loss_dict).items()}
-                losses_reduced = sum(loss for loss in loss_dict_reduced.values())
+                total_loss = sum(loss for loss in loss_dict_reduced.values())
                 optimizer.zero_grad()
                 losses.backward()
                 optimizer.step()
 
                 # store the loss and lr
-                storage.put_scalars(total_loss=losses_reduced, **loss_dict_reduced)
+                storage.put_scalars(total_loss=total_loss, **loss_dict_reduced)
                 storage.put_scalar("lr", optimizer.param_groups[0]["lr"], smoothing_hint=False)
                 if iteration % count_iteration == 0:
-                    print(f'iter={iteration}, losses_reduced={losses_reduced}, lr={optimizer.param_groups[0]["lr"]}')
+                    print(f'iter={iteration}, total_loss={total_loss}, lr={optimizer.param_groups[0]["lr"]}')
                     logger.info(
-                        f'iter={iteration}, losses_reduced={losses_reduced}, lr={optimizer.param_groups[0]["lr"]}'
+                        f'iter={iteration}, total_loss={total_loss}, lr={optimizer.param_groups[0]["lr"]}'
                     )
 
                 # validation

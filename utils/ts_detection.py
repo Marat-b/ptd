@@ -106,12 +106,13 @@ class TorchscriptDetection:
                 # cv2_imshow(mask_inverted, 'mask_inverted')
                 image = cv2.bitwise_or(cv2.bitwise_and(image, mask_inverted), image_weighted)
                 # cv2_imshow(new_image[:, :, [2, 1, 0]], 'new_image')
-                t_size = cv2.getTextSize(self.class_names[pr_class], cv2.FONT_HERSHEY_PLAIN, 2, 2)[0]
+                text = '{} - {:.2f}%'.format(self.class_names[pr_class], pr_score)
+                t_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_PLAIN, 2, 2)[0]
                 cv2.rectangle(image, (x0, y0), (x1, y1), self.color_mask[pr_class], 3)
                 cv2.rectangle(image, (x0, y0), (x0 + t_size[0] + 3, y0 + t_size[1] + 4), self.color_mask[pr_class], -1)
                 cv2.putText(
-                    image, self.class_names[pr_class], (x0, y0 + t_size[1] + 4),
-                    cv2.FONT_HERSHEY_PLAIN, 2, [255, 255, 255], 2
+                    image, text, (x0, y0 + t_size[1] + 4),
+                    cv2.FONT_HERSHEY_PLAIN, 2, [0, 0, 0], 2
                 )
         return image
 

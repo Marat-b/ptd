@@ -22,7 +22,7 @@ class MyMapper:
                 # T.RandomFlip(prob=0.5, horizontal=True, vertical=False)
             ]
         else:
-            aug_list = [T.ResizeShortestEdge(512, sample_style='choice')]
+            aug_list = [T.ResizeShortestEdge(128, sample_style='choice')]
 
         self.augmentations = T.AugmentationList(aug_list)
         self.is_train = is_train

@@ -35,9 +35,9 @@ class PotatoTrainer:
         # self.dataset_train = None
         self.eval_period = 10000
         # self.max_iter = 1
-        self.num_classes = 11
+        self.num_classes = 9
         self.output_folder = None
-        self.patience = 2
+        self.patience = 4
         self.train_coco_file_path = None
         self.train_images_path = None
         self.validate_coco_file_path = None
@@ -48,7 +48,7 @@ class PotatoTrainer:
         self.cfg = get_cfg()  # obtain detectron2's default config
         # self.cfg.merge_from_file(self.cfg_path)  # load values from a file
         self.cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"))
-        self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.1
+        self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
         # self.cfg.MODEL.DEVICE = 'cpu'
         self.cfg.DATASETS.TRAIN = ('train_instances',)
         self.cfg.DATASETS.TEST = ('validate_instances',)
@@ -57,13 +57,13 @@ class PotatoTrainer:
         )  # self.weights
         self.cfg.DATALOADER.NUM_WORKERS = 2
         # self.cfg.MODEL.RPN.BATCH_SIZE_PER_IMAGE = 256
-        self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128 # default 512
+        self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 64 # default 512
         self.cfg.SOLVER.IMS_PER_BATCH = 2
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = self.num_classes
-        self.cfg.SOLVER.GAMMA = 0.8
+        self.cfg.SOLVER.GAMMA = 0.5
         self.cfg.SOLVER.WEIGHT_DECAY = 0  # for MADGRAD
         self.cfg.SOLVER.MOMENTUM = 0  # for MADGRAD
-        self.cfg.SOLVER.BASE_LR = 0.000001  # self.base_lr
+        self.cfg.SOLVER.BASE_LR = 0.001  # self.base_lr
         self.cfg.SOLVER.MAX_ITER = 600000  # elf.max_iter
         self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
         self.cfg.SOLVER.WARMUP_ITERS = 1000
@@ -75,17 +75,17 @@ class PotatoTrainer:
         self.cfg = get_cfg()  # obtain detectron2's default config
         # self.cfg.merge_from_file(self.cfg_path)  # load values from a file
         self.cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"))
-        self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.1
+        self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
         # self.cfg.MODEL.DEVICE = 'cpu'
         self.cfg.DATASETS.TRAIN = ('train_instances',)
         self.cfg.DATASETS.TEST = ('validate_instances',)
         self.cfg.MODEL.WEIGHTS = './output/potato_model_current.pth'
         self.cfg.DATALOADER.NUM_WORKERS = 2
         # self.cfg.MODEL.RPN.BATCH_SIZE_PER_IMAGE = 256
-        self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128 # default 512
+        self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 64 # default 512
         self.cfg.SOLVER.IMS_PER_BATCH = 2
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = self.num_classes
-        self.cfg.SOLVER.GAMMA = 0.8
+        self.cfg.SOLVER.GAMMA = 0.5
         self.cfg.SOLVER.WEIGHT_DECAY = 0
         self.cfg.SOLVER.MOMENTUM = 0
         self.cfg.SOLVER.BASE_LR = lr
@@ -292,35 +292,35 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Trainer Composition")
     parser.add_argument(
-        "--train_coco_dir",
+        "-tc", "--train_coco_dir",
         type=str,
         dest="train_coco_file_path",
         required=True,
         help="Path of json file of COCO format"
     )
     parser.add_argument(
-        "--train_images_dir",
+        "-ti", "--train_images_dir",
         type=str,
         dest="train_images_path",
         required=True,
         help=""
     )
     parser.add_argument(
-        "--validate_coco_dir",
+        "-vc", "--validate_coco_dir",
         type=str,
         dest="validate_coco_file_path",
         required=True,
         help=""
     )
     parser.add_argument(
-        "--validate_images_dir",
+        "-vi", "--validate_images_dir",
         type=str,
         dest="validate_images_path",
         required=True,
         help=""
     )
     parser.add_argument(
-        "--output_folder",
+        "-o", "--output_folder",
         type=str,
         dest="output_folder",
         required=False,
@@ -328,7 +328,7 @@ if __name__ == "__main__":
         help=""
     )
     parser.add_argument(
-        "--resume",
+        "-r", "--resume",
         type=bool,
         dest="resume",
         default=False,

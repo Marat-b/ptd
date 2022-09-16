@@ -105,14 +105,14 @@ class PotatoTrainer:
         register_coco_instances('train_instances', {}, train_coco_file_path, train_images_path)
         register_coco_instances('validate_instances', {}, validate_coco_file_path, validate_images_path)
 
-    def _save_torchscript(self):
+    def _save_torchscript(self, width=512, height=512):
         print('Save torch_script file...')
-        self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
-        self.cfg.MODEL.WEIGHTS = './output/best_mAP.pth'
+        # self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
+        # self.cfg.MODEL.WEIGHTS = './output/best_mAP.pth'
         model = build_model(self.cfg)
-        DetectionCheckpointer(model).resume_or_load(self.cfg.MODEL.WEIGHTS)
+        DetectionCheckpointer(model).resume_or_load('./output/best_mAP.pth')
         model.eval()
-        image = torch.randint(255, size=(3, 512, 512))
+        image = torch.randint(255, size=(3, width, height))
         inputs = [{"image": image}]  # remove other unused keys
         if isinstance(model, GeneralizedRCNN):
             print('inference is Not None')
@@ -245,6 +245,11 @@ class PotatoTrainer:
                             './output/metrics.json',
                             os.path.join(output_folder, 'metrics{}.json'.format(get_ymd()))
                         )
+                        self._save_torchscript(width=128, height=128)
+                        shutil.copy(
+                            './output/potato_model.ts',
+                            os.path.join(output_folder, 'potato_model_best{}.ts'.format(get_ymd()))
+                        )
                     scheduler.step(mAP)
                     # wandb.log({'eval-mAP': mAP,
                     #            'eval-AP50': list(eval_stat.values())[0]['AP50'],
@@ -284,7 +289,7 @@ class PotatoTrainer:
         else:
             self._load_cfg()
         self.train_model(output_folder=self.output_folder, resume=resume)
-        self._save_torchscript()
+        self._save_torchscript(width=128, height=128)
 
 
 if __name__ == "__main__":

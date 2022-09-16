@@ -26,6 +26,7 @@ def main(args):
     test_images_path = args.test_images_path
     output_path = args.output_path
     new_shape = args.shape
+    classes = args.classes
     if eval(args.gpu):
         device = 'cuda'
     else:
@@ -42,7 +43,7 @@ def main(args):
     cfg = get_cfg()
     # cfg = add_export_config(cfg)
     cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"))
-    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 11
+    cfg.MODEL.ROI_HEADS.NUM_CLASSES = classes
     cfg.DATASETS.TEST = ('potato_dataset_test',)
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
     cfg.MODEL.WEIGHTS = weights_path
@@ -116,6 +117,12 @@ if __name__ == '__main__':
         "-g", "--gpu", default=True,
         dest="gpu",
         help="CUDA or CPU, CUDA is default"
+    )
+    parser.add_argument(
+        "-c", "--classes", default=1,
+        type=int,
+        dest="classes",
+        help="Number of classes"
     )
     p_args = parser.parse_args()
     main(p_args)

@@ -156,6 +156,7 @@ if __name__ == '__main__':
     p_args = parser.parse_args()
     tsd = TorchscriptDetection(p_args.weight_path, use_cuda=eval(p_args.cuda))
     img = cv2.imread(p_args.image_path)
+    img = img[:, :, [2, 1, 0]]
 
     # cv2_imshow(img, 'img')
     img = cv2.resize(img, p_args.shape)

@@ -174,6 +174,7 @@ if __name__ == '__main__':
         ret, frame = cap.read()
         if ret:
             # img = cv2.resize(img, p_args.shape)
+            frame = frame[:, :, [2, 1, 0]]
             pred_boxes, scores, pred_classes, masks = tsd.detect(frame)
             # print(f'pred_boxes={pred_boxes}')
             # print(f'scores={scores}')

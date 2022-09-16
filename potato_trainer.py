@@ -248,7 +248,7 @@ class PotatoTrainer:
                         self._save_torchscript(width=128, height=128)
                         shutil.copy(
                             './output/potato_model.ts',
-                            os.path.join(output_folder, 'potato_model_best{}.ts'.format(get_ymd()))
+                            os.path.join(output_folder, 'potato_model_cuda_best{}.ts'.format(get_ymd()))
                         )
                     scheduler.step(mAP)
                     # wandb.log({'eval-mAP': mAP,

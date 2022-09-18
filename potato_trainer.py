@@ -52,9 +52,10 @@ class PotatoTrainer:
         # self.cfg.MODEL.DEVICE = 'cpu'
         self.cfg.DATASETS.TRAIN = ('train_instances',)
         self.cfg.DATASETS.TEST = ('validate_instances',)
-        self.cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(
-            "COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"
-        )  # self.weights
+        # self.cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(
+        #     "COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"
+        # )  # self.weights
+        self.cfg.MODEL.WEIGHTS = './output/potato_model_start.pth'
         self.cfg.DATALOADER.NUM_WORKERS = 2
         # self.cfg.MODEL.RPN.BATCH_SIZE_PER_IMAGE = 256
         self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 64 # default 512

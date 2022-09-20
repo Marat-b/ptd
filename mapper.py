@@ -5,12 +5,12 @@ import detectron2.data.transforms as T
 
 
 class MyMapper:
-    def __init__(self, cfg, is_train: bool = True):
+    def __init__(self, cfg, is_train: bool = True, width=256, height=256):
         if is_train:
             aug_list = [
                 # T.ResizeShortestEdge([800, 800], sample_style='range'),
-                T.RandomApply(T.RandomBrightness(0.8, 1.2), 0.05),
-                T.RandomApply(T.RandomContrast(0.8, 1.2), 0.05),
+                T.RandomApply(T.RandomBrightness(0.8, 1.2), 0.1),
+                T.RandomApply(T.RandomContrast(0.8, 1.2), 0.1),
                 # T.RandomRotation([0.5, 1]),
                 T.RandomApply(T.RandomLighting(0.8), 0.01),
                 T.RandomApply(T.RandomSaturation(0.8, 1.2), 0.1),
@@ -22,7 +22,7 @@ class MyMapper:
                 # T.RandomFlip(prob=0.5, horizontal=True, vertical=False)
             ]
         else:
-            aug_list = [T.ResizeShortestEdge(128, sample_style='choice')]
+            aug_list = [T.ResizeShortestEdge([width, height], sample_style='choice')]
 
         self.augmentations = T.AugmentationList(aug_list)
         self.is_train = is_train

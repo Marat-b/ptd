@@ -130,7 +130,7 @@ class PotatoTrainer:
         ts_model = torch.jit.trace(traceable_model, (image,))
         torch.jit.save(ts_model, './output/potato_model.ts')
 
-    def train_model(self, resume=False, output_folder='./'):
+    def train_model(self, resume=False, output_folder='./', width_image=256, height_image=256):
         def get_ymd():
             now = datetime.datetime.now()
             year = now.year
@@ -162,7 +162,8 @@ class PotatoTrainer:
         print(f'dataset_names={dataset_names}')
         train_loader = build_detection_train_loader(self.cfg, mapper=MyMapper(self.cfg, is_train=True))
         dataset_name = self.cfg.DATASETS.TEST[0]
-        valid_loader = build_detection_test_loader(self.cfg, dataset_name, mapper=MyMapper(self.cfg, is_train=False))
+        valid_loader = build_detection_test_loader(self.cfg, dataset_name, mapper=MyMapper(self.cfg, is_train=False,
+                                                                                           width=width_image, height=height_image))
 
         # Model, optimizer, scheduler
         model = build_model(self.cfg)
@@ -246,7 +247,7 @@ class PotatoTrainer:
                             './output/metrics.json',
                             os.path.join(output_folder, 'metrics{}.json'.format(get_ymd()))
                         )
-                        self._save_torchscript(width=128, height=128)
+                        self._save_torchscript(width=width_image, height=height_image)
                         shutil.copy(
                             './output/potato_model.ts',
                             os.path.join(output_folder, 'potato_model_cuda_best{}.ts'.format(get_ymd()))
@@ -277,6 +278,8 @@ class PotatoTrainer:
         self.validate_coco_file_path = args.validate_coco_file_path
         self.validate_images_path = args.validate_images_path
         resume = args.resume
+        width = args.width
+        height = args.height
         self._load_datasets(
             self.train_coco_file_path,
             self.train_images_path,
@@ -289,8 +292,8 @@ class PotatoTrainer:
             self._load_cfg_resuming(max_iter=int(max_iter), lr=float(lr))
         else:
             self._load_cfg()
-        self.train_model(output_folder=self.output_folder, resume=resume)
-        self._save_torchscript(width=128, height=128)
+        self.train_model(output_folder=self.output_folder, resume=resume, width_image=width, height_image=height)
+        self._save_torchscript(width=width, height=height)
 
 
 if __name__ == "__main__":
@@ -339,7 +342,23 @@ if __name__ == "__main__":
         dest="resume",
         default=False,
         required=False,
-        help=""
+        help="Resuming of training"
+    )
+    parser.add_argument(
+        "-w", "--width",
+        type=int,
+        dest="width",
+        default=256,
+        required=False,
+        help="Width of image"
+    )
+    parser.add_argument(
+        "-h", "--height",
+        type=int,
+        dest="height",
+        default=256,
+        required=False,
+        help="Height of image"
     )
     args = parser.parse_args()
     pt = PotatoTrainer()

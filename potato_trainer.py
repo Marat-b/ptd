@@ -353,7 +353,7 @@ if __name__ == "__main__":
         help="Width of image"
     )
     parser.add_argument(
-        "-h", "--height",
+        "-he", "--height",
         type=int,
         dest="height",
         default=256,

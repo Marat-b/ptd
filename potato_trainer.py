@@ -234,6 +234,7 @@ class PotatoTrainer:
                     eval_stat = inference_on_dataset(model, valid_loader, evaluator)
                     mAP = list(eval_stat.values())[0]['AP']
                     print(f'mAP={mAP}')
+                    logger.info(f'mAP={mAP}')
                     if mAP > best_mAP:
                         best_mAP = mAP
                         checkpointer.save("best_mAP")
@@ -267,6 +268,10 @@ class PotatoTrainer:
                     #            'global_step': storage.iter,
                     #           })
                     valid_AP.append(list(eval_stat.values())[0])
+                    shutil.copy(
+                        'log.txt',
+                        os.path.join(output_folder, 'log.txt'.format(get_ymd()))
+                    )
                     for writer in writers:
                         writer.write()
         # return pd.DataFrame.from_dict(valid_AP)

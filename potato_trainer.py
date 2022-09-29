@@ -28,6 +28,7 @@ class PotatoTrainer:
     def __init__(self
                  ):
         # self.base_lr = base_lr
+        self.best_map = 0
         self.cfg = None
         self.cfg_path = './config_potato.yml'
         self.count_iteration = 2000
@@ -130,7 +131,7 @@ class PotatoTrainer:
         ts_model = torch.jit.trace(traceable_model, (image,))
         torch.jit.save(ts_model, './output/potato_model.ts')
 
-    def train_model(self, resume=False, output_folder='./', width_image=256, height_image=256):
+    def train_model(self, best_map=0, resume=False, output_folder='./', width_image=256, height_image=256):
         def get_ymd():
             now = datetime.datetime.now()
             year = now.year
@@ -188,7 +189,7 @@ class PotatoTrainer:
         # writers.append(WAndBWriter())
 
         # Help to record validation results
-        best_mAP = 0
+        best_mAP = best_map
         valid_AP = []
         # Train loop
         model.train()
@@ -277,6 +278,7 @@ class PotatoTrainer:
         # return pd.DataFrame.from_dict(valid_AP)
 
     def main(self, args):
+        self.best_map = args.best_map
         self.output_folder = args.output_folder
         self.train_coco_file_path = args.train_coco_file_path
         self.train_images_path = args.train_images_path
@@ -297,7 +299,8 @@ class PotatoTrainer:
             self._load_cfg_resuming(max_iter=int(max_iter), lr=float(lr))
         else:
             self._load_cfg()
-        self.train_model(output_folder=self.output_folder, resume=resume, width_image=width, height_image=height)
+        self.train_model(best_map=self.best_map, output_folder=self.output_folder, resume=resume, width_image=width, \
+                                                                                              height_image=height)
         self._save_torchscript(width=width, height=height)
 
 
@@ -364,6 +367,14 @@ if __name__ == "__main__":
         default=256,
         required=False,
         help="Height of image"
+    )
+    parser.add_argument(
+        "-bm", "--best_map",
+        type=float,
+        dest="best_map",
+        default=0,
+        required=False,
+        help="Best mAP"
     )
     args = parser.parse_args()
     pt = PotatoTrainer()

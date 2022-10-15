@@ -1,4 +1,6 @@
-
+import pathlib
+from os import listdir
+from os.path import isfile, join
 
 import torchvision  # need to put first
 import cv2
@@ -56,9 +58,13 @@ class TorchscriptDetection:
             # print(pr_mask)
             # print(pr_mask.dtype, pr_mask.shape)
             masks.append(new_mask)
-            # print(new_mask.dtype, new_mask.shape)
+            print(new_mask.dtype, new_mask.shape)
 
-        return np.array(bbox, dtype=np.float64), np.array(cls_conf), np.array(cls_ids), np.array(masks)
+        # print(f'np.array(bbox)={np.array(bbox).shape}')
+        # print(f'np.array(cls_conf)={np.array(cls_conf).shape}')
+        # print(f'np.array(cls_ids)={np.array(cls_ids).shape}')
+        print(f'np.array(masks)={np.array(masks).shape}')
+        return np.array(bbox), np.array(cls_conf), np.array(cls_ids), np.array(masks)
 
     def _get_mask(self, image_mask, box):
         """
@@ -130,18 +136,18 @@ if __name__ == '__main__':
         help="Path of weight file"
     )
     parser.add_argument(
-        "-vi", "--video_input",
+        "-o", "--output_dir",
         type=str,
-        dest="video_input_path",
+        dest="output_dir",
         required=True,
-        help="Path of input video file"
+        help="Path of output image files"
     )
     parser.add_argument(
-        "-vo", "--video_output",
+        "-i", "--input_dir",
         type=str,
-        dest="video_output_path",
+        dest="input_dir",
         required=True,
-        help="Path of output video file"
+        help="Path of input video files"
     )
     parser.add_argument(
         "-c", "--confidence",
@@ -159,33 +165,32 @@ if __name__ == '__main__':
         help="Use CUDA (default)"
     )
     p_args = parser.parse_args()
-    video_input_path = p_args.video_input_path
-    video_output_path = p_args.video_output_path
+    input_dir = p_args.input_dir
+    output_dir = p_args.output_dir
     tsd = TorchscriptDetection(p_args.weight_path, use_cuda=eval(p_args.cuda))
-    cap = cv2.VideoCapture(video_input_path)
-    # img = cv2.imread(p_args.image_path)
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    im_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    im_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    num_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    video_writer_rgb = cv2.VideoWriter(video_output_path, fourcc, num_frames, (im_width, im_height))
+
+    pathlib.Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    files = [f for f in listdir(input_dir) if isfile(join(input_dir, f)) and
+             join(input_dir, f).split('.')[1] != 'db']
+
 
     # cv2_imshow(img, 'img')
-    for i in tqdm(range(num_frames)):
-        ret, frame = cap.read()
-        if ret:
-            # img = cv2.resize(img, p_args.shape)
-            # frame = frame[:, :, [2, 1, 0]]
-            pred_boxes, scores, pred_classes, masks = tsd.detect(frame)
-            # print(f'pred_boxes={pred_boxes}')
-            # print(f'scores={scores}')
-            # print(f'pred_classes={pred_classes}')
+    for file in tqdm(files):
+        print('---------------------------')
+        im1 = cv2.imread(join(input_dir, file), cv2.IMREAD_COLOR)
+        # img = cv2.resize(img, p_args.shape)
+        # frame = frame[:, :, [2, 1, 0]]
+        pred_boxes, scores, pred_classes, masks = tsd.detect(im1)
+        # print(f'pred_boxes={pred_boxes}')
+        # print(f'scores={scores}')
+        # print(f'pred_classes={pred_classes}')
 
-            img = tsd.visualize(frame, confidence=p_args.confidence)
-            video_writer_rgb.write(img)
-        if cv2.waitKey(1) == ord('q'):
-            break
+        img = tsd.visualize(im1, confidence=p_args.confidence)
+        cv2.imwrite(join(output_dir, file), img)
+        # if cv2.waitKey(1) == ord('q'):
+        #     break
     # cv2_imshow(img, 'img')
-    video_writer_rgb.release()
+
 
     cv2.destroyAllWindows()

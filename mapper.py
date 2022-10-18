@@ -9,11 +9,11 @@ class MyMapper:
         if is_train:
             aug_list = [
                 # T.ResizeShortestEdge([800, 800], sample_style='range'),
-                T.RandomApply(T.RandomBrightness(0.5, 1.9), 0.5),
-                T.RandomApply(T.RandomContrast(0.5, 1.9), 0.5),
+                T.RandomApply(T.RandomBrightness(0.5, 1.9), 0.3),
+                T.RandomApply(T.RandomContrast(0.5, 1.9), 0.3),
                 # T.RandomRotation([0.5, 1]),
                 T.RandomApply(T.RandomLighting(500.0), 0.3),
-                T.RandomApply(T.RandomSaturation(0.1, 2.1), 0.5),
+                T.RandomApply(T.RandomSaturation(0.1, 2.1), 0.3),
                 # T.RandomApply(T.CropTransform(50, 50, 300, 300), 0.05),
                 # T.RandomApply(T.ScaleTransform(512, 512, 256, 256), 0.09),
                 T.RandomApply(T.ExtentTransform([width // 10, height // 10, width // 2, height // 2], [width, height]),

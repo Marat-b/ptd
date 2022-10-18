@@ -36,7 +36,7 @@ class PotatoTrainer:
         # self.dataset_train = None
         self.eval_period = 10000
         # self.max_iter = 1
-        self.num_classes = 9
+        self.num_classes = 2
         self.output_folder = None
         self.patience = 4
         self.train_coco_file_path = None
@@ -66,7 +66,7 @@ class PotatoTrainer:
         self.cfg.SOLVER.WEIGHT_DECAY = 0  # for MADGRAD
         self.cfg.SOLVER.MOMENTUM = 0  # for MADGRAD
         self.cfg.SOLVER.BASE_LR = 0.000001  # self.base_lr
-        self.cfg.SOLVER.MAX_ITER = 600000  # elf.max_iter
+        self.cfg.SOLVER.MAX_ITER = 1400000  # elf.max_iter
         self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
         self.cfg.SOLVER.WARMUP_ITERS = 1000
         self.cfg.TEST.EVAL_PERIOD = self.eval_period

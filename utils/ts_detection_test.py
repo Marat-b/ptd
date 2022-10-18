@@ -46,10 +46,12 @@ class TorchscriptDetection:
         scores = out[3].numpy()
         pr_masks = out[2].numpy()
         bbox, bbox_xcycwh, cls_conf, cls_ids, masks = [], [], [], [], []
+        # bbox, bbox_xcycwh, cls_conf, cls_ids = [], [], [], []
+        # masks = np.asarray({})
 
         for (box, _class, score, pr_mask) in zip(boxes, classes, scores, pr_masks):
             # print(f'box={box}')
-            x0, y0, x1, y1 = box
+            # x0, y0, x1, y1 = box
             # bbox_xcycwh.append([(x1 + x0) / 2, (y1 + y0) / 2, (x1 - x0), (y1 - y0)])
             bbox.append(box)
             cls_conf.append(score)
@@ -57,14 +59,21 @@ class TorchscriptDetection:
             new_mask = self._get_mask(pr_mask, box)
             # print(pr_mask)
             # print(pr_mask.dtype, pr_mask.shape)
+            # print(f'masks.ndim={masks.ndim}')
+            print(new_mask.dtype, new_mask.shape, new_mask.ndim)
+            # if masks.ndim > 0:
+            #     masks = np.stack((masks, np.expand_dims(new_mask, axis=0)), axis=0)
+            # else:
+            #     masks = np.expand_dims(new_mask, axis=0)
             masks.append(new_mask)
-            print(new_mask.dtype, new_mask.shape)
+
+
 
         # print(f'np.array(bbox)={np.array(bbox).shape}')
         # print(f'np.array(cls_conf)={np.array(cls_conf).shape}')
         # print(f'np.array(cls_ids)={np.array(cls_ids).shape}')
-        print(f'np.array(masks)={np.array(masks).shape}')
-        return np.array(bbox), np.array(cls_conf), np.array(cls_ids), np.array(masks)
+        print(f'masks={len(masks)}')
+        return np.array(bbox), np.array(cls_conf), np.array(cls_ids), masks
 
     def _get_mask(self, image_mask, box):
         """
@@ -181,7 +190,7 @@ if __name__ == '__main__':
         im1 = cv2.imread(join(input_dir, file), cv2.IMREAD_COLOR)
         # img = cv2.resize(img, p_args.shape)
         # frame = frame[:, :, [2, 1, 0]]
-        pred_boxes, scores, pred_classes, masks = tsd.detect(im1)
+        # pred_boxes, scores, pred_classes, masks = tsd.detect(im1)
         # print(f'pred_boxes={pred_boxes}')
         # print(f'scores={scores}')
         # print(f'pred_classes={pred_classes}')

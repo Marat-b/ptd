@@ -181,8 +181,9 @@ if __name__ == '__main__':
             # print(f'pred_boxes={pred_boxes}')
             # print(f'scores={scores}')
             # print(f'pred_classes={pred_classes}')
-
+            # frame = cv2.resize(frame, None, fx=2, fy=2, interpolation = cv2.INTER_CUBIC)
             img = tsd.visualize(frame, confidence=p_args.confidence)
+            # img = cv2.resize(img, None,fx=0.5, fy=0.5)
             video_writer_rgb.write(img)
         if cv2.waitKey(1) == ord('q'):
             break

@@ -36,9 +36,9 @@ class PotatoTrainer:
         # self.dataset_train = None
         self.eval_period = 10000
         # self.max_iter = 1
-        self.num_classes = 2
+        self.num_classes = 9
         self.output_folder = None
-        self.patience = 4
+        self.patience = 2
         self.train_coco_file_path = None
         self.train_images_path = None
         self.validate_coco_file_path = None
@@ -49,24 +49,26 @@ class PotatoTrainer:
         self.cfg = get_cfg()  # obtain detectron2's default config
         # self.cfg.merge_from_file(self.cfg_path)  # load values from a file
         self.cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"))
-        self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
-        # self.cfg.MODEL.DEVICE = 'cpu'
-        self.cfg.DATASETS.TRAIN = ('train_instances',)
-        self.cfg.DATASETS.TEST = ('validate_instances',)
+        self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = self.num_classes
         self.cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(
             "COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"
         )  # self.weights
         # self.cfg.MODEL.WEIGHTS = './output/potato_model_start.pth'
+        self.cfg.MODEL.ANCHOR_GENERATOR.SIZES = [[8, 16, 32, 64, 128]]
+        self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
+        # self.cfg.MODEL.DEVICE = 'cpu'
+        self.cfg.DATASETS.TRAIN = ('train_instances',)
+        self.cfg.DATASETS.TEST = ('validate_instances',)
         self.cfg.DATALOADER.NUM_WORKERS = 2
         # self.cfg.MODEL.RPN.BATCH_SIZE_PER_IMAGE = 256
         self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 64 # default 512
         self.cfg.SOLVER.IMS_PER_BATCH = 2
-        self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = self.num_classes
+
         self.cfg.SOLVER.GAMMA = 0.5
         self.cfg.SOLVER.WEIGHT_DECAY = 0  # for MADGRAD
         self.cfg.SOLVER.MOMENTUM = 0  # for MADGRAD
         self.cfg.SOLVER.BASE_LR = 0.000001  # self.base_lr
-        self.cfg.SOLVER.MAX_ITER = 1400000  # elf.max_iter
+        self.cfg.SOLVER.MAX_ITER = 2  # elf.max_iter
         self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
         self.cfg.SOLVER.WARMUP_ITERS = 1000
         self.cfg.TEST.EVAL_PERIOD = self.eval_period
@@ -197,6 +199,7 @@ class PotatoTrainer:
             for data, iteration in zip(train_loader, range(start_iter, max_iter)):
                 storage.iter = iteration
                 loss_dict = model(data)  # Four types of loss obtained from the faster rcnn model
+                print(f'loss_dict={loss_dict}')
                 losses = sum(loss_dict.values())
                 loss_dict_reduced = {k: v.item() for k, v in comm.reduce_dict(loss_dict).items()}
                 total_loss = sum(loss for loss in loss_dict_reduced.values())
@@ -269,10 +272,11 @@ class PotatoTrainer:
                     #            'global_step': storage.iter,
                     #           })
                     valid_AP.append(list(eval_stat.values())[0])
-                    shutil.copy(
-                        'log.txt',
-                        os.path.join(output_folder, 'log.txt'.format(get_ymd()))
-                    )
+                    if os.path.exists('log.txt'):
+                        shutil.copy(
+                            'log.txt',
+                            os.path.join(output_folder, 'log.txt'.format(get_ymd()))
+                        )
                     for writer in writers:
                         writer.write()
         # return pd.DataFrame.from_dict(valid_AP)

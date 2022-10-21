@@ -60,7 +60,7 @@ class TorchscriptDetection:
             # print(pr_mask)
             # print(pr_mask.dtype, pr_mask.shape)
             # print(f'masks.ndim={masks.ndim}')
-            print(new_mask.dtype, new_mask.shape, new_mask.ndim)
+            # print(new_mask.dtype, new_mask.shape, new_mask.ndim)
             # if masks.ndim > 0:
             #     masks = np.stack((masks, np.expand_dims(new_mask, axis=0)), axis=0)
             # else:
@@ -72,7 +72,7 @@ class TorchscriptDetection:
         # print(f'np.array(bbox)={np.array(bbox).shape}')
         # print(f'np.array(cls_conf)={np.array(cls_conf).shape}')
         # print(f'np.array(cls_ids)={np.array(cls_ids).shape}')
-        print(f'masks={len(masks)}')
+        # print(f'masks={len(masks)}')
         return np.array(bbox), np.array(cls_conf), np.array(cls_ids), masks
 
     def _get_mask(self, image_mask, box):
@@ -181,12 +181,12 @@ if __name__ == '__main__':
     pathlib.Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     files = [f for f in listdir(input_dir) if isfile(join(input_dir, f)) and
-             join(input_dir, f).split('.')[1] != 'db']
+             join(input_dir, f).split('.')[1] == 'jpg']
 
 
     # cv2_imshow(img, 'img')
     for file in tqdm(files):
-        print('---------------------------')
+        # print('---------------------------')
         im1 = cv2.imread(join(input_dir, file), cv2.IMREAD_COLOR)
         # img = cv2.resize(img, p_args.shape)
         # frame = frame[:, :, [2, 1, 0]]

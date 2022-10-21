@@ -68,7 +68,7 @@ class PotatoTrainer:
         self.cfg.SOLVER.WEIGHT_DECAY = 0  # for MADGRAD
         self.cfg.SOLVER.MOMENTUM = 0  # for MADGRAD
         self.cfg.SOLVER.BASE_LR = 0.000001  # self.base_lr
-        self.cfg.SOLVER.MAX_ITER = 2  # elf.max_iter
+        self.cfg.SOLVER.MAX_ITER = 300000  # elf.max_iter
         self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
         self.cfg.SOLVER.WARMUP_ITERS = 1000
         self.cfg.TEST.EVAL_PERIOD = self.eval_period

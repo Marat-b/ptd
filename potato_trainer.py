@@ -199,7 +199,7 @@ class PotatoTrainer:
             for data, iteration in zip(train_loader, range(start_iter, max_iter)):
                 storage.iter = iteration
                 loss_dict = model(data)  # Four types of loss obtained from the faster rcnn model
-                print(f'loss_dict={loss_dict}')
+                # print(f'loss_dict={loss_dict}')
                 losses = sum(loss_dict.values())
                 loss_dict_reduced = {k: v.item() for k, v in comm.reduce_dict(loss_dict).items()}
                 total_loss = sum(loss for loss in loss_dict_reduced.values())

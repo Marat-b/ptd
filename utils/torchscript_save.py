@@ -44,7 +44,7 @@ def main(args):
     # cfg = add_export_config(cfg)
     cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"))
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = classes
-    cfg.DATASETS.TEST = ('potato_dataset_test',)
+    # cfg.DATASETS.TEST = ('potato_dataset_test',)
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
     cfg.MODEL.WEIGHTS = weights_path
     cfg.MODEL.DEVICE = device

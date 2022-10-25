@@ -9,6 +9,7 @@ class MyMapper:
         if is_train:
             aug_list = [
                 # T.ResizeShortestEdge([800, 800], sample_style='range'),
+                T.RandomApply(T.Resize((width // 2, height // 2)), 0.3),
                 T.RandomApply(T.RandomBrightness(0.5, 1.9), 0.3),
                 T.RandomApply(T.RandomContrast(0.5, 1.9), 0.3),
                 # T.RandomRotation([0.5, 1]),

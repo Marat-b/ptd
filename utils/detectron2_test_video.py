@@ -154,9 +154,9 @@ if __name__ == '__main__':
             # print(f'pred_boxes={pred_boxes}')
             # print(f'scores={scores}')
             # print(f'pred_classes={pred_classes}')
-            # frame = cv2.resize(frame, None, fx=2, fy=2, interpolation = cv2.INTER_CUBIC)
+            # frame = cv2.resize(frame, None, fx=4, fy=4, interpolation = cv2.INTER_CUBIC)
             img = visualize(frame, cfg, predictor)
-            # img = cv2.resize(img, None,fx=0.5, fy=0.5)
+            # img = cv2.resize(img, None,fx=0.25, fy=0.25)
             video_writer_rgb.write(img)
             # cv2.imshow('img', cv2.resize(img, None, fx=0.3, fy=0.3))
         # if cv2.waitKey(1) == ord('q'):

@@ -31,12 +31,12 @@ class PotatoTrainer:
         self.best_map = 0
         self.cfg = None
         self.cfg_path = './config_potato.yml'
-        self.count_iteration = 2000
+        self.count_iteration = 200
         # self.dataset_test = None
         # self.dataset_train = None
-        self.eval_period = 10000
+        self.eval_period = 552
         # self.max_iter = 1
-        self.num_classes = 9
+        self.num_classes = 2
         self.output_folder = None
         self.patience = 2
         self.train_coco_file_path = None
@@ -54,23 +54,23 @@ class PotatoTrainer:
             "COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"
         )  # self.weights
         # self.cfg.MODEL.WEIGHTS = './output/potato_model_start.pth'
-        self.cfg.MODEL.ANCHOR_GENERATOR.SIZES = [[8, 16, 32, 64, 128]]
+        # self.cfg.MODEL.ANCHOR_GENERATOR.SIZES = [[8, 16, 32, 64, 128]]
         self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
         # self.cfg.MODEL.DEVICE = 'cpu'
         self.cfg.DATASETS.TRAIN = ('train_instances',)
         self.cfg.DATASETS.TEST = ('validate_instances',)
         self.cfg.DATALOADER.NUM_WORKERS = 2
         # self.cfg.MODEL.RPN.BATCH_SIZE_PER_IMAGE = 256
-        self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 64 # default 512
+        # self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 64 # default 512
         self.cfg.SOLVER.IMS_PER_BATCH = 2
 
         self.cfg.SOLVER.GAMMA = 0.5
         self.cfg.SOLVER.WEIGHT_DECAY = 0  # for MADGRAD
         self.cfg.SOLVER.MOMENTUM = 0  # for MADGRAD
         self.cfg.SOLVER.BASE_LR = 0.000001  # self.base_lr
-        self.cfg.SOLVER.MAX_ITER = 300000  # elf.max_iter
+        self.cfg.SOLVER.MAX_ITER = 11040  # elf.max_iter
         self.cfg.SOLVER.WARMUP_FACTOR = 1.0 / 200
-        self.cfg.SOLVER.WARMUP_ITERS = 1000
+        self.cfg.SOLVER.WARMUP_ITERS = 100
         self.cfg.TEST.EVAL_PERIOD = self.eval_period
         self.cfg.SOLVER.WARMUP_METHOD = "linear"
         os.makedirs(self.cfg.OUTPUT_DIR, exist_ok=True)

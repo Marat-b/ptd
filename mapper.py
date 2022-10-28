@@ -9,10 +9,10 @@ class MyMapper:
         if is_train:
             aug_list = [
                 # T.ResizeShortestEdge([800, 800], sample_style='range'),
-                T.RandomApply(T.Resize((width // 2, height // 2)), 0.3),
+                # T.RandomApply(T.Resize((width // 2, height // 2)), 0.3),
                 T.RandomApply(T.RandomBrightness(0.5, 1.9), 0.3),
                 T.RandomApply(T.RandomContrast(0.5, 1.9), 0.3),
-                # T.RandomRotation([0.5, 1]),
+                T.RandomApply(T.RandomRotation([0.5, 1]), 0.3),
                 T.RandomApply(T.RandomLighting(500.0), 0.3),
                 T.RandomApply(T.RandomSaturation(0.1, 2.1), 0.3),
                 # T.RandomApply(T.CropTransform(50, 50, 300, 300), 0.05),
@@ -21,7 +21,8 @@ class MyMapper:
                               0.3),
                 T.RandomApply(T.RandomCrop(crop_type='relative', crop_size=(0.5, 0.5)), 0.3),
                 T.RandomApply(T.RandomExtent((1, 1), (0.5, 1.5)), 0.3),
-                # T.RandomFlip(prob=0.5, horizontal=True, vertical=False)
+                T.RandomApply(T.RandomFlip(prob=0.5, horizontal=True, vertical=False), 0.3),
+                T.RandomApply(T.RandomFlip(prob=0.5, horizontal=False, vertical=True), 0.3)
             ]
         else:
             aug_list = [T.ResizeShortestEdge([width, height], sample_style='choice')]

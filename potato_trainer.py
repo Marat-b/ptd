@@ -60,8 +60,8 @@ class PotatoTrainer:
         self.cfg.DATASETS.TRAIN = ('train_instances',)
         self.cfg.DATASETS.TEST = ('validate_instances',)
         self.cfg.DATALOADER.NUM_WORKERS = 2
-        # self.cfg.MODEL.RPN.BATCH_SIZE_PER_IMAGE = 256
-        self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 64 # default 512
+        self.cfg.MODEL.RPN.BATCH_SIZE_PER_IMAGE = 512
+        # self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 64 # default 512
         self.cfg.SOLVER.IMS_PER_BATCH = 2
 
         self.cfg.SOLVER.GAMMA = 0.5

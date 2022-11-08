@@ -48,10 +48,10 @@ class PotatoTrainer:
     def _load_cfg(self):
         self.cfg = get_cfg()  # obtain detectron2's default config
         # self.cfg.merge_from_file(self.cfg_path)  # load values from a file
-        self.cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"))
+        self.cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"))
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = self.num_classes
         self.cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(
-            "COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"
+            "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
         )  # self.weights
         # self.cfg.MODEL.WEIGHTS = './output/potato_model_start.pth'
         # self.cfg.MODEL.ANCHOR_GENERATOR.SIZES = [[8, 16, 32, 64, 128]]

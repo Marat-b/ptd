@@ -19,7 +19,7 @@ class MyMapper:
                 # T.RandomApply(T.ScaleTransform(512, 512, 256, 256), 0.09),
                 # T.RandomApply(T.ExtentTransform([width // 10, height // 10, width // 2, height // 2], [width, height]),
                 #               0.3),
-                T.RandomApply(T.RandomCrop(crop_type='relative', crop_size=(0.5, 0.5)), 0.3),
+                # T.RandomApply(T.RandomCrop(crop_type='relative', crop_size=(0.5, 0.5)), 0.3),
                 # T.RandomApply(T.RandomExtent((1, 1), (0.5, 1.5)), 0.3),
                 T.RandomFlip(prob=0.5, horizontal=True, vertical=False),
                 T.RandomFlip(prob=0.5, horizontal=False, vertical=True)

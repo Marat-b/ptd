@@ -42,7 +42,7 @@ def main(args):
 
     cfg = get_cfg()
     # cfg = add_export_config(cfg)
-    cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"))
+    cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"))
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = classes
     # cfg.DATASETS.TEST = ('potato_dataset_test',)
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
@@ -52,29 +52,30 @@ def main(args):
     DetectionCheckpointer(model).resume_or_load(cfg.MODEL.WEIGHTS)
     model.eval()
 
-    # height, width = img.shape[:2]
-    # image = torch.as_tensor(img.astype("float32").transpose(2, 0, 1))
-    image = torch.randint(255, size=(3, new_shape[0], new_shape[1])).to(torch.float32)
-    # image2 = torch.randint(255, size=(3, 512, 512)).to(torch.float32)
-    # image3 = torch.randint(255, size=(3, 512, 512)).to(torch.float32)
-    # print(image)
-    # inputs = {"image": image, "height": height, "width": width}
-    inputs = [{"image": image}]  # remove other unused keys
-    if isinstance(model, GeneralizedRCNN):
-        print('inference is Not None')
+    with torch.no_grad():
+        # height, width = img.shape[:2]
+        # image = torch.as_tensor(img.astype("float32").transpose(2, 0, 1))
+        image = torch.randint(255, size=(3, new_shape[0], new_shape[1])).to(torch.float32)
+        # image2 = torch.randint(255, size=(3, 512, 512)).to(torch.float32)
+        # image3 = torch.randint(255, size=(3, 512, 512)).to(torch.float32)
+        # print(image)
+        # inputs = {"image": image, "height": height, "width": width}
+        inputs = [{"image": image}]  # remove other unused keys
+        if isinstance(model, GeneralizedRCNN):
+            print('inference is Not None')
 
-        def inference(model, inputs):
-            # use do_postprocess=False so it returns ROI mask
-            inst = model.inference(inputs, do_postprocess=False)[0]
-            return [{"instances": inst}]
-    else:
-        print('inference is None')
-        inference = None  # assume that we just call the model directly
-    traceable_model = TracingAdapter(model, inputs, inference)
-    ################ torchscript ###################################################
-    ts_model = torch.jit.trace(traceable_model, (image,))
-    torch.jit.save(ts_model, output_path)
-    # dump_torchscript_IR(ts_model, '../weights/ts')
+            def inference(model, inputs):
+                # use do_postprocess=False so it returns ROI mask
+                inst = model.inference(inputs, do_postprocess=False)[0]
+                return [{"instances": inst}]
+        else:
+            print('inference is None')
+            inference = None  # assume that we just call the model directly
+        traceable_model = TracingAdapter(model, inputs, inference)
+        ################ torchscript ###################################################
+        ts_model = torch.jit.trace(traceable_model, (image,))
+        torch.jit.save(ts_model, output_path)
+        # dump_torchscript_IR(ts_model, '../weights/ts')
 
 
 if __name__ == '__main__':

@@ -31,12 +31,12 @@ class PotatoTrainer:
         self.best_map = 0
         self.cfg = None
         self.cfg_path = './config_potato.yml'
-        self.count_iteration = 1000
+        self.count_iteration = 2000
         # self.dataset_test = None
         # self.dataset_train = None
-        self.eval_period = 7000
+        self.eval_period = 11000
         # self.max_iter = 1
-        self.num_classes = 2
+        self.num_classes = 1
         self.output_folder = None
         self.patience = 2
         self.train_coco_file_path = None

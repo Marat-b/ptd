@@ -21,8 +21,8 @@ class MyMapper:
                 #               0.3),
                 # T.RandomApply(T.RandomCrop(crop_type='relative', crop_size=(0.5, 0.5)), 0.3),
                 # T.RandomApply(T.RandomExtent((1, 1), (0.5, 1.5)), 0.3),
-                # T.RandomFlip(prob=0.5, horizontal=True, vertical=False),
-                # T.RandomFlip(prob=0.5, horizontal=False, vertical=True)
+                T.RandomFlip(prob=0.3, horizontal=True, vertical=False),
+                T.RandomFlip(prob=0.3, horizontal=False, vertical=True)
             ]
         else:
             aug_list = [T.ResizeShortestEdge([width, height], sample_style='choice')]

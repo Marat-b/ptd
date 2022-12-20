@@ -34,7 +34,7 @@ class PotatoTrainer:
         self.count_iteration = 2000
         # self.dataset_test = None
         # self.dataset_train = None
-        self.eval_period = 9108
+        self.eval_period = 10000
         # self.max_iter = 1
         self.num_classes = 1
         self.output_folder = None

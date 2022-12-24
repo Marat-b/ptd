@@ -34,9 +34,9 @@ class PotatoTrainer:
         self.count_iteration = 2000
         # self.dataset_test = None
         # self.dataset_train = None
-        self.eval_period = 10000
+        self.eval_period = 12000
         # self.max_iter = 1
-        self.num_classes = 1
+        self.num_classes = 2
         self.output_folder = None
         self.patience = 2
         self.train_coco_file_path = None
@@ -64,7 +64,7 @@ class PotatoTrainer:
         # self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 64 # default 512
         self.cfg.SOLVER.IMS_PER_BATCH = 2
 
-        self.cfg.SOLVER.GAMMA = 0.5
+        self.cfg.SOLVER.GAMMA = 0.1
         self.cfg.SOLVER.WEIGHT_DECAY = 0  # for MADGRAD
         self.cfg.SOLVER.MOMENTUM = 0  # for MADGRAD
         self.cfg.SOLVER.BASE_LR = 0.000001  # self.base_lr

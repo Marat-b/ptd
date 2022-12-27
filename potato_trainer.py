@@ -34,7 +34,7 @@ class PotatoTrainer:
         self.count_iteration = 2000
         # self.dataset_test = None
         # self.dataset_train = None
-        self.eval_period = 12000
+        self.eval_period = 15000
         # self.max_iter = 1
         self.num_classes = 2
         self.output_folder = None
@@ -86,7 +86,7 @@ class PotatoTrainer:
         self.cfg.MODEL.WEIGHTS = './output/potato_model_current.pth'
         self.cfg.DATALOADER.NUM_WORKERS = 2
         # self.cfg.MODEL.RPN.BATCH_SIZE_PER_IMAGE = 256
-        self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 64 # default 512
+        # self.cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 64 # default 512
         self.cfg.SOLVER.IMS_PER_BATCH = 2
         self.cfg.MODEL.ROI_HEADS.NUM_CLASSES = self.num_classes
         self.cfg.SOLVER.GAMMA = 0.5
